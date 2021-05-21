@@ -36,20 +36,12 @@ public interface PreferenceNode {
   String getName();
 
   /**
-   * Gets the number of subnodes.
+   * Gets the value.
    *
-   * @return count of subnodes, null if n/a
+   * @return the value, null if none
    */
   @Bindable(ordinal = 2)
-  Integer getCount();
-
-  /**
-   * Gets an optional comment.
-   *
-   * @return the comment, null if none
-   */
-  @Bindable(ordinal = 3)
-  String getComment();
+  String getValue();
 
   /**
    * Gets the optional subnodes of this node.
@@ -71,17 +63,5 @@ public interface PreferenceNode {
    * @return the modification count
    */
   int getModificationCount();
-
-  /**
-   * Gets the number of missing translations.
-   *
-   * @return the missing translations
-   */
-  int getMissingCount();
-
-  /**
-   * Invalidates the missing count.
-   */
-  void invalidateMissingCount();
 
 }

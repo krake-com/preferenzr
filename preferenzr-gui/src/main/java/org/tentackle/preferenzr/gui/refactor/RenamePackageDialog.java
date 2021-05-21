@@ -104,7 +104,7 @@ public class RenamePackageDialog extends AbstractFxController {
   private void renameBundle() {
     if (StringHelper.isValidJavaPackageName(newName)) {
       try {
-        preferencesRepository.renamePackage(oldName, newName);
+//        preferencesRepository.renamePackage(oldName, newName);
         done = true;
       }
       catch (ConstraintException cx) {

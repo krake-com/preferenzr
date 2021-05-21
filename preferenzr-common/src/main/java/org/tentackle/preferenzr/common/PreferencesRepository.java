@@ -19,18 +19,19 @@
 package org.tentackle.preferenzr.common;
 
 import org.tentackle.app.AbstractApplication;
-import org.tentackle.i18n.pdo.StoredBundle;
+import org.tentackle.dbms.Db;
+import org.tentackle.dbms.prefs.DbPreferencesFactory;
+import org.tentackle.dbms.prefs.DbPreferencesKey;
+import org.tentackle.dbms.prefs.DbPreferencesNode;
 import org.tentackle.pdo.DomainContext;
 import org.tentackle.pdo.DomainContextProvider;
+import org.tentackle.prefs.PersistedPreferences;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.prefs.Preferences;
 
 /**
  * The preference repository encapsulates the StoredBundle and StoredBundleKey persistence.<br>
@@ -39,23 +40,16 @@ import java.util.prefs.Preferences;
  */
 public class PreferencesRepository implements DomainContextProvider {
 
-  private final DomainContext context;                      // domain context to load from storage
-  private final List<PreferencesUpdatedListener> listeners;     // translation modification listener
-  private final Preferences prefs;                          // user preferences for the active locales
-  private final Set<String> activeLocales;                  // the selected locales for the current user
-  private final Set<String> locales;                        // all locales persisted in the database (including the default "")
-  private final Map<String, PreferenceNode> preferenceNames;        // internal preference model, null to force (re)load
-  private boolean invalid;                                  // true if repo is outdated and needs to be reloaded
-  private int modificationCount;                            // number of modified translations
-  private int missingCount;                                 // -1 if pending computation
+  private final DomainContext context;                          // domain context to load from storage
+  private final List<PreferencesUpdatedListener> listeners;     // preferences modification listener
+  private final Map<String, PreferenceNode> preferenceNodes;    // internal preference model
+  private boolean invalid;                                      // true if repo is outdated and needs to be reloaded
+  private int modificationCount;                                // number of modified preferences
 
   public PreferencesRepository() {
     context = AbstractApplication.getRunningApplication().getDomainContext();
     listeners = new ArrayList<>();
-    preferenceNames = new TreeMap<>();
-    prefs = Preferences.userNodeForPackage(getClass());
-    activeLocales = new TreeSet<>();
-    locales = new TreeSet<>();
+    preferenceNodes = new TreeMap<>();
     invalid = true;
   }
 
@@ -65,71 +59,13 @@ public class PreferencesRepository implements DomainContextProvider {
   }
 
   /**
-   * Returns all locales.<br>
-   * The default locale is the empty string.
-   *
-   * @return the locales
-   */
-  public Set<String> getLocales() {
-    assertLoaded();
-    return locales;
-  }
-
-  /**
-   * Returns all active locales.
-   *
-   * @return the active locales
-   */
-  public Set<String> getActiveLocales() {
-    assertLoaded();
-    return activeLocales;
-  }
-
-  /**
-   * Returns whether the given locale is active.
-   *
-   * @param locale the locale
-   * @return true if active
-   */
-  public boolean isLocaleActive(String locale) {
-    assertLoaded();
-    return activeLocales.contains(locale);
-  }
-
-  /**
-   * Sets a locale active / deactivated.
-   *
-   * @param locale the locale
-   * @param active true if active, else deactivate
-   */
-  public void setLocaleActive(String locale, boolean active) {
-    if (isLocaleActive(locale) != active) {
-      if (active) {
-        activeLocales.add(locale);
-      }
-      else {
-        activeLocales.remove(locale);
-      }
-      prefs.putBoolean(locale, active);
-      invalid = true;
-      missingCount = -1;
-      for (PreferenceNode preferenceName : preferenceNames.values()) {
-//        for (BundleKey preferenceKey : preferenceName.getKeys().values()) {
-//          preferenceKey.invalidateMissingCount();
-//        }
-      }
-      assertLoaded();
-    }
-  }
-
-  /**
    * Gets the loaded preference nodes.
    *
    * @return the preferences
    */
-  public Collection<? extends PreferenceNode> getBundles() {
+  public Collection<? extends PreferenceNode> getPreferences() {
     assertLoaded();
-    return preferenceNames.values();
+    return preferenceNodes.values();
   }
 
   /**
@@ -142,28 +78,14 @@ public class PreferencesRepository implements DomainContextProvider {
     return modificationCount;
   }
 
-  /**
-   * Gets the number of missing translations.
-   *
-   * @return the missing count
-   */
-  public int getMissingCount() {
-    assertLoaded();
-    if (missingCount == -1) {
-      missingCount = 0;
-      for (PreferenceNode preferenceName : preferenceNames.values()) {
-        missingCount += preferenceName.getMissingCount();
-      }
-    }
-    return missingCount;
-  }
+
 
   /**
    * Adds a preference update listener.
    *
    * @param listener the listener
    */
-  public void addBundlesUpdatedListener(PreferencesUpdatedListener listener) {
+  public void addPreferencesUpdatedListener(PreferencesUpdatedListener listener) {
     listeners.add(listener);
   }
 
@@ -172,7 +94,7 @@ public class PreferencesRepository implements DomainContextProvider {
    *
    * @param listener the listener
    */
-  public void removeBundlesUpdatedListener(PreferencesUpdatedListener listener) {
+  public void removePreferencesUpdatedListener(PreferencesUpdatedListener listener) {
     listeners.remove(listener);
   }
 
@@ -182,7 +104,6 @@ public class PreferencesRepository implements DomainContextProvider {
    * @param diff number of modifications to add
    */
   public void updateModificationCount(int diff) {
-    missingCount = -1;
     modificationCount += diff;
     fireListeners(false);
   }
@@ -199,88 +120,24 @@ public class PreferencesRepository implements DomainContextProvider {
    */
   public void persist() {
     assertLoaded();
-    for (PreferenceNode preferenceName : preferenceNames.values()) {
-      if (preferenceName.getModificationCount() != 0) {
-        for (String locale : activeLocales) {
-          persist(preferenceName, locale.isEmpty() ? null : locale);
-        }
+    for (PreferenceNode preferenceNode : preferenceNodes.values()) {
+      if (preferenceNode.getModificationCount() != 0) {
+        persist(preferenceNode);
       }
     }
   }
 
-  /**
-   * Renames or moves a preference.
-   * <p>
-   * Throws {@link org.tentackle.session.ConstraintException} if renaming failed.
-   *
-   * @param preferenceName the preference
-   * @param newName the new name of the preference
-   */
-  public void renameBundle(PreferenceNode preferenceName, String newName) {
-    context.getSession().transaction(() -> {
-      for (StoredBundle storedBundle : getStoredBundles(preferenceName)) {
-        storedBundle.setName(newName);
-        storedBundle.persist();
-        invalidate();
-      }
-      return null;
-    });
-  }
 
-  /**
-   * Renames a package.
-   * <p>
-   * Throws {@link org.tentackle.session.ConstraintException} if renaming failed.
-   *
-   * @param oldPackage the old package name
-   * @param newPackage the new package name
-   */
-  public void renamePackage(String oldPackage, String newPackage) {
-    String packageName;
-    if (!newPackage.isEmpty() && !newPackage.endsWith(".")) {
-      packageName = newPackage + ".";
-    }
-    else {
-      packageName = newPackage;
-    }
-    context.getSession().transaction(() -> {
-      for (PreferenceNode preferenceName : getBundlesForPackage(oldPackage)) {
-        for (StoredBundle storedBundle : getStoredBundles(preferenceName)) {
-          String remainder = storedBundle.getName().substring(oldPackage.length());
-          if (remainder.startsWith(".")) {
-            remainder = remainder.substring(1);
-          }
-          storedBundle.setName(packageName + remainder);
-          storedBundle.persist();
-          invalidate();
-        }
-      }
-      return null;
-    });
-  }
 
 
   /**
    * Persiste the given preference for a locale.
    *
    * @param preferenceName the preference
-   * @param locale the locale, null if default locale
    */
-  private void persist(PreferenceNode preferenceName, String locale) {
+  private void persist(PreferenceNode preferenceName) {
     context.getSession().transaction(() -> {    // one transaction per preference
-      StoredBundle storedBundle = on(StoredBundle.class).findByNameAndLocale(preferenceName.getName(), locale);
-      if (storedBundle == null) {
-        storedBundle = on(StoredBundle.class);
-        storedBundle.setName(preferenceName.getName());
-        storedBundle.setLocale(locale);
-      }
-//      for (BundleKey preferenceKey : preferenceName.getKeys().values()) {
-//        BundleTranslation translation = preferenceKey.getTranslation(locale == null ? "" : locale);
-//        storedBundle.setTranslation(preferenceKey.getName(), translation == null ? null : translation.getValue());
-//      }
-      if (storedBundle.isModified()) {
-        storedBundle.save();
-      }
+
       return null;
     });
   }
@@ -290,7 +147,7 @@ public class PreferencesRepository implements DomainContextProvider {
    */
   private synchronized void assertLoaded() {
     if (invalid) {
-      loadBundlesFromStorage();
+      loadFromStorage();
       invalid = false;
       fireListeners(true);
     }
@@ -310,74 +167,14 @@ public class PreferencesRepository implements DomainContextProvider {
   /**
    * Loads the preferences from the database.
    */
-  private void loadBundlesFromStorage() {
-    preferenceNames.clear();
-    locales.clear();
+  private void loadFromStorage() {
+    preferenceNodes.clear();
 
-    // load persisted preferences
-    for (StoredBundle storedBundle : on(StoredBundle.class).selectAll()) {
-      String locale = storedBundle.getLocale();
-      if (locale == null) {
-        locale = "";
-      }
-      locales.add(locale);
-      boolean active = prefs.getBoolean(locale, true);
-      if (active) {
-        activeLocales.add(locale);
-      }
-      else {
-        activeLocales.remove(locale);
-      }
-//      BundleNode preferenceName = preferenceNames.computeIfAbsent(storedBundle.getName(), n -> new BundleNode(this, n, new TreeMap<>()));
-//      for (StoredBundleKey storedKey : storedBundle.getKeys()) {
-//        BundleKey preferenceKey = preferenceName.getKeys().computeIfAbsent(storedKey.getKey(), k -> new BundleKey(preferenceName, k, new TreeMap<>()));
-//        preferenceKey.getTranslations().computeIfAbsent(locale, l -> new BundleTranslation(preferenceKey, l, storedKey.getValue(), active));
-//      }
-    }
-
-    // add missing translations (for the active locales only!)
-    for (PreferenceNode preferenceName : preferenceNames.values()) {
-//      for (BundleKey preferenceKey : preferenceName.getKeys().values()) {
-//        for (String locale : activeLocales) {
-//          BundleTranslation translation = preferenceKey.getTranslation(locale);
-//          if (translation == null) {
-//            preferenceKey.getTranslations().put(locale, new BundleTranslation(preferenceKey, locale, null, true));
-//          }
-//        }
-//      }
-    }
+    // select all low-level (bypassing the factory!)
+    List<DbPreferencesNode> dbPreferencesNodes = new DbPreferencesNode((Db) getDomainContext().getSession()).selectAllObjects();
+    List<DbPreferencesKey> dbPreferencesKeys = new DbPreferencesKey((Db) getDomainContext().getSession()).selectAllObjects();
 
     modificationCount = 0;
-    missingCount = -1;
-  }
-
-  /**
-   * Returns the stored preferences for the given preference name.
-   *
-   * @param preferenceName the preferencename
-   * @return the stored preferences for all locales
-   */
-  private List<StoredBundle> getStoredBundles(PreferenceNode preferenceName) {
-    return on(StoredBundle.class).findByName(preferenceName.getName());
-  }
-
-  /**
-   * Returns the stored preferences for the given preference name.
-   *
-   * @param packageName the package name
-   * @return the stored preferences for all locales
-   */
-  private List<PreferenceNode> getBundlesForPackage(String packageName) {
-    if (!packageName.endsWith(".")) {
-      packageName += ".";
-    }
-    List<PreferenceNode> preferences = new ArrayList<>();
-    for (PreferenceNode preference : preferenceNames.values()) {
-      if (preference.getName().startsWith(packageName)) {
-        preferences.add(preference);
-      }
-    }
-    return preferences;
   }
 
 }

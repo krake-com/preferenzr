@@ -12,7 +12,6 @@ import org.tentackle.preferenzr.gui.GuiBundle;
 import org.tentackle.preferenzr.gui.main.MainController;
 import org.tentackle.fx.rdc.app.DesktopApplication;
 import org.tentackle.fx.rdc.app.FxApplication;
-import org.tentackle.i18n.StoredBundleFactory;
 import org.tentackle.pdo.DomainContext;
 import org.tentackle.pdo.PersistentDomainObject;
 import org.tentackle.security.SecurityFactory;
@@ -38,7 +37,6 @@ public class PreferenzrFxClient extends DesktopApplication<MainController> {
    */
   public PreferenzrFxClient() {
     super("Preferenzr", Version.RELEASE);
-    StoredBundleFactory.setEnabled(false);    // preferenzr itself uses only standard resource preferences
   }
 
   @Override

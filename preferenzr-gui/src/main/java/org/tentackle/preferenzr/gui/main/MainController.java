@@ -38,7 +38,6 @@ import org.tentackle.preferenzr.common.PreferenceNode;
 import org.tentackle.preferenzr.common.PreferencesRepository;
 import org.tentackle.preferenzr.common.CommonBundle;
 import org.tentackle.preferenzr.gui.about.AboutView;
-import org.tentackle.preferenzr.gui.locale.LocaleSelector;
 import org.tentackle.preferenzr.gui.prefs.PreferencesDialog;
 import org.tentackle.security.SecurityFactory;
 
@@ -58,7 +57,6 @@ import java.util.ResourceBundle;
 public class MainController extends AbstractFxController implements DomainContextProvider {
 
   private static final String STYLE_MODIFIED = "preference-modified";   // css style for modified preference nodes
-  private static final String STYLE_MISSING = "preference-missing";     // css style for missing translation in preference nodes
 
   @Bindable
   private Collection<? extends PreferenceNode> preferences;       // preference nodes shown in tree table
@@ -115,7 +113,6 @@ public class MainController extends AbstractFxController implements DomainContex
 
   private PreferencesRepository preferencesRepository;                      // the internal preference model
   private TablePopup<PreferenceNode> preferenceNodeTablePopup;            // popup menu and config
-  private LocaleSelector localeSelector;                          // the active locales
   private List<TreeItem<PreferenceNode>> preferenceTreeItems;             // all tree items
   private TreeItem<PreferenceNode> foundItem;                         // != null if current found item
   private int foundIndex;                                         // index in preferenceTreeItems if foundItem != null
@@ -130,9 +127,6 @@ public class MainController extends AbstractFxController implements DomainContex
   @FXML
   public void initialize() {
     preferencesRepository = new PreferencesRepository();
-
-    localeSelector = Fx.load(LocaleSelector.class);
-    innerBorderPane.setTop(localeSelector.getView());
 
     preferencesItem.setGraphic(Fx.createImageView("preferences"));
     preferencesItem.setDisable(!SecurityFactory.getInstance().getSecurityManager().evaluate(
@@ -194,14 +188,6 @@ public class MainController extends AbstractFxController implements DomainContex
       protected void updateItem(PreferenceNode item, boolean empty) {
         super.updateItem(item, empty);
         if (item != null) {
-          if (item.getMissingCount() != 0) {   // missing has priority over modified
-            if (!getStyleClass().contains(STYLE_MISSING)) {
-              getStyleClass().add(STYLE_MISSING);
-            }
-            getStyleClass().remove(STYLE_MODIFIED);
-          }
-          else {
-            getStyleClass().remove(STYLE_MISSING);
             if (item.getModificationCount() != 0) {
               if (!getStyleClass().contains(STYLE_MODIFIED)) {
                 getStyleClass().add(STYLE_MODIFIED);
@@ -211,10 +197,6 @@ public class MainController extends AbstractFxController implements DomainContex
               getStyleClass().remove(STYLE_MODIFIED);
             }
           }
-        }
-        else {
-          getStyleClass().removeAll(STYLE_MODIFIED, STYLE_MISSING);
-        }
       }
     });
 
@@ -255,10 +237,8 @@ public class MainController extends AbstractFxController implements DomainContex
     preferenceNodeTablePopup = Rdc.createTablePopup(preferencesTreeTable, "preferencesTreeTable", resources.getString("Bundles"));
     preferenceNodeTablePopup.setColumnMenuEnabled(false);
     preferenceNodeTablePopup.loadPreferences();
-    preferencesRepository.addBundlesUpdatedListener(this::preferencesUpdated);
+    preferencesRepository.addPreferencesUpdatedListener(this::preferencesUpdated);
     loadRepository();
-    localeSelector.setRepository(preferencesRepository);
-
     configureContextMenu();
   }
 
@@ -312,7 +292,7 @@ public class MainController extends AbstractFxController implements DomainContex
           lcFilter = lcFilter.substring(1);
         }
         List<PreferenceNode> foundNodes = new ArrayList<>();
-        for (PreferenceNode preferenceNode : preferencesRepository.getBundles()) {
+        for (PreferenceNode preferenceNode : preferencesRepository.getPreferences()) {
           String name = ucLcSensitive ? preferenceNode.getName() : preferenceNode.getName().toUpperCase();
           if (name.contains(lcFilter) ^ not) {
             foundNodes.add(preferenceNode);
@@ -322,7 +302,7 @@ public class MainController extends AbstractFxController implements DomainContex
         filtered = true;
       }
       else {
-        preferences = preferencesRepository.getBundles();
+        preferences = preferencesRepository.getPreferences();
       }
       preferenceTreeItems = null;
       preferencesTreeTable.updateView();
@@ -381,12 +361,11 @@ public class MainController extends AbstractFxController implements DomainContex
   private boolean runFind(TreeItem<PreferenceNode> item, int itemNdx, String locale, Boolean next) {
     String ucFind = ucLcButton.isSelected() ? find : find.toUpperCase();
     if (item.isLeaf()) {
-      List<String> locales = new ArrayList<>(preferencesRepository.getLocales());
-      if (checkTranslations(item, ucFind, locale == null ? -1 : locales.indexOf(locale), next)) {
-        foundIndex = itemNdx;
-        showFoundItem();
-        return true;
-      }
+//      if (checkTranslations(item, ucFind, locale == null ? -1 : locales.indexOf(locale), next)) {
+//        foundIndex = itemNdx;
+//        showFoundItem();
+//        return true;
+//      }
     }
 
     // nothing more found in translations
@@ -418,11 +397,11 @@ public class MainController extends AbstractFxController implements DomainContex
         showFoundItem();
         return true;
       }
-      if (item.isLeaf() && checkTranslations(item, ucFind,-1, next)) {
-        foundIndex = itemNdx;
-        showFoundItem();
-        return true;
-      }
+//      if (item.isLeaf() && checkTranslations(item, ucFind,-1, next)) {
+//        foundIndex = itemNdx;
+//        showFoundItem();
+//        return true;
+//      }
       if (Boolean.FALSE.equals(next)) {
         itemNdx = toPreviousItem(itemNdx, itemHolder);
       }
@@ -434,74 +413,7 @@ public class MainController extends AbstractFxController implements DomainContex
     return false;
   }
 
-  /**
-   * Checks the translations within a {@link BundleKey} tree item.
-   *
-   * @param item the tree item
-   * @param ucFind the uppercase string to search for
-   * @param localeNdx the current locale index to continue with, -1 if begin/end of all locales
-   * @param next next true if start search at next item, false if search backwards starting at previous item, null if find next starting at current item
-   * @return true if found
-   */
-  private boolean checkTranslations(TreeItem<PreferenceNode> item, String ucFind, int localeNdx, Boolean next) {
-//    BundleKey preferenceKey = (BundleKey) item.getValue();
-    List<String> locales = new ArrayList<>(preferencesRepository.getLocales());
-    String locale;
-    if (Boolean.FALSE.equals(next)) {
-      if (localeNdx == -1) {
-        localeNdx = locales.size() - 1;
-      }
-      else {
-        localeNdx--;
-      }
-      while (localeNdx >= 0) {
-        locale = locales.get(localeNdx);
-//        if (checkTranslation(preferenceKey, locale, ucFind)) {
-//          foundItem = item;
-//          return true;
-//        }
-        --localeNdx;
-      }
-    }
-    else {
-      if (localeNdx == -1) {
-        localeNdx = 0;
-      }
-      else {
-        localeNdx++;
-      }
-      while (localeNdx < locales.size()) {
-        locale = locales.get(localeNdx);
-//        if (checkTranslation(preferenceKey, locale, ucFind)) {
-//          foundItem = item;
-//          return true;
-//        }
-        ++localeNdx;
-      }
-    }
-    return false;
-  }
 
-  /**
-   * Checks the translation for a locale within a {@link BundleKey} item.
-   *
-   * @param preferenceKey the preference key
-   * @param locale the locale
-   * @param ucFind the uppercase string to search for
-   * @return true if found
-   */
-//  private boolean checkTranslation(BundleKey preferenceKey, String locale, String ucFind) {
-//    BundleTranslation translation = preferenceKey.getTranslation(locale);
-//    String value = translation.getValue();
-//    if (!ucLcButton.isSelected()) {
-//      value = value.toUpperCase();
-//    }
-//    if (translation != null && value.contains(ucFind)) {
-//      foundLocale = locale;
-//      return true;
-//    }
-//    return false;
-//  }
 
   /**
    * Moves the current item to the next within the item tree.
@@ -619,7 +531,7 @@ public class MainController extends AbstractFxController implements DomainContex
    */
   private void loadRepository() {
     preferencesRepository.invalidate();
-    preferences = preferencesRepository.getBundles();
+    preferences = preferencesRepository.getPreferences();
     preferencesTreeTable.updateView();
     preferencesUpdated(0, true);
     filter = null;
@@ -636,9 +548,9 @@ public class MainController extends AbstractFxController implements DomainContex
     saveButton.setDisable(modificationCount == 0);
     discardItem.setDisable(modificationCount == 0);
 //    preferenceEditor.setLocales(preferenceRepository.getLocales(), preferenceRepository.getActiveLocales());
-    modificationLabel.setText(CommonBundle.createComment(modificationCount, preferencesRepository.getMissingCount(), 0));
+//    modificationLabel.setText(CommonBundle.createComment(modificationCount, preferencesRepository.getMissingCount(), 0));
     if (reloaded) {
-      preferences = preferencesRepository.getBundles();
+      preferences = preferencesRepository.getPreferences();
       preferencesTreeTable.updateView();
     }
     else {

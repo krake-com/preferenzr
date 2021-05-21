@@ -14,7 +14,6 @@ module org.tentackle.preferenzr.client {
   requires org.tentackle.preferenzr.common;
 
   requires org.tentackle.fx.rdc;
-  requires org.tentackle.i18n;
 
   requires javafx.graphics;
 

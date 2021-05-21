@@ -1,12 +1,4 @@
 
-.preference-missing {
-    -fx-background-color: #ffffcc;
-}
-
-.preference-missing:selected {
-    -fx-background-color: #ff922f;
-}
-
 .preference-modified {
     -fx-background-color: #dfdfff;
 }

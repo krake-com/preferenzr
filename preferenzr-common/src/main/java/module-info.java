@@ -11,7 +11,6 @@ module org.tentackle.preferenzr.common {
   exports org.tentackle.preferenzr.common;
 
   requires org.tentackle.pdo;
-  requires org.tentackle.i18n;
   requires org.tentackle.persistence;
   requires org.tentackle.domain;
 
