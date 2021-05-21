@@ -1,0 +1,9 @@
+.root {
+  -fx-background-image: url("/org/tentackle/preferenzr/gui/images/login-and-about.png");
+  -fx-background-size: 550 300;
+  -fx-background-position: left;
+  -fx-background-repeat: no-repeat;
+  -fx-background-color: white;
+  -fx-min-width: 600;
+  -fx-min-height: 300;
+}

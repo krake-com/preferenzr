@@ -1,0 +1,35 @@
+# Netbeans
+nb-configuration.xml
+nbactions*.xml
+jshell.history
+
+# Maven
+target/
+keystore
+
+# Eclipse
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+.externalToolBuilders/
+*.launch
+
+# IntelliJ
+*.iml
+.idea/
+*.ipr
+*.iws
+.attach_pid*
+
+/velocity.log

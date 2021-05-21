@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>logs/preferenzr.log</file>
+    <encoder>
+      <pattern>[%thread] %X{session} - %d{dd.MM.yyyy HH:mm:ss} %-5p %c.%M\(%F:%L\) - %m%n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- daily rollover -->
+      <fileNamePattern>logs/client.%d{yyyy-MM-dd}.log.zip</fileNamePattern>
+      <!-- keep 7 days' worth of history -->
+      <maxHistory>7</maxHistory>
+    </rollingPolicy>
+  </appender>
+
+  <root>
+    <level value="INFO" />
+    <appender-ref ref="FILE" />
+  </root>
+</configuration>

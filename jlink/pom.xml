@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.tentackle</groupId>
+    <artifactId>preferenzr</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>preferenzr-jlink-client</artifactId>
+  <packaging>jlink</packaging>    <!-- change to "jpackage" to create installer instead -->
+  <name>Preferenzr JLink Image</name>
+  <description>JLink Module for Preferenzr</description>
+
+  <properties>
+    <rootBasedir>${project.parent.basedir}</rootBasedir>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.tentackle</groupId>
+      <artifactId>preferenzr-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.tentackle</groupId>
+        <artifactId>tentackle-jlink-maven-plugin</artifactId>
+        <configuration>
+          <mainModule>org.tentackle.preferenzr.client</mainModule>
+          <mainClass>org.tentackle.preferenzr.client.PreferenzrFxClient</mainClass>
+          <addModules>
+            <addModule>jdk.jcmd</addModule>
+            <addModule>jdk.localedata</addModule>
+          </addModules>
+          <excludeModules>
+            <!-- slf4j: unsupported reference since java 12 -->
+            <excludeModule>jdk8internals</excludeModule>
+          </excludeModules>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

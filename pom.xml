@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.tentackle</groupId>
+  <artifactId>preferenzr</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>Preferenzr Parent</name>
+  <description>Parent Project for Preferenzr</description>
+  <url>https://tentackle.org/</url>
+  <organization>
+    <name>Krake Softwaretechnik</name>
+    <url>https://krake.de/</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1, February 1999</name>
+      <url>http://www.gnu.org/licenses/lgpl-2.1.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <email>harald@krake.de</email>
+      <name>Harald Krake</name>
+      <url>https://krake.de</url>
+      <id>hkr</id>
+    </developer>
+  </developers>
+
+  <modules>
+    <module>preferenzr-common</module>
+    <module>preferenzr-gui</module>
+    <module>preferenzr-client</module>
+    <!-- jlink/jpackage images are built with profile "jlink" only -->
+  </modules>
+
+  <properties>
+    <rootBasedir>${project.basedir}</rootBasedir>
+    <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <tentackle.version>16.0-SNAPSHOT</tentackle.version>
+    <tentackle.serviceDir>${project.build.directory}/generated-resources/services</tentackle.serviceDir>
+    <tentackle.testServiceDir>${project.build.directory}/generated-test-resources/services</tentackle.testServiceDir>
+    <tentackle.manifestDirectory>${project.build.directory}/generated-resources/manifest</tentackle.manifestDirectory>
+    <tentackle.modelDefaults>remote, bind, size, autoselect, tracked, root, rootid, rootclassid</tentackle.modelDefaults>
+
+  </properties>
+
+  <scm>
+    <connection>scm:git:https://bitbucket.org/krake-oss/preferenzr.git</connection>
+    <developerConnection>scm:git:ssh://git@bitbucket.org/krake-oss/preferenzr.git</developerConnection>
+    <url>https://bitbucket.org/krake-oss/preferenzr/</url>
+  </scm>
+
+  <issueManagement>
+    <system>Bitbucket</system>
+    <url>https://bitbucket.org/krake-oss/preferenzr/</url>
+  </issueManagement>
+
+  <distributionManagement>
+    <site>
+      <id>${site.id}</id>
+      <url>scp:${site.url}/preferenzr/${project.version}/</url>
+    </site>
+    <repository>
+      <id>${repo.id}</id>
+      <name>Release Repository</name>
+      <url>${repo.releases.url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>${repo.id}</id>
+      <name>Snapshot Repository</name>
+      <url>${repo.snapshots.url}</url>
+      <uniqueVersion>false</uniqueVersion>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.tentackle</groupId>
+        <artifactId>tentackle-bom</artifactId>
+        <version>${tentackle.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <!-- runtime dependencies -->
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.2.3</version>
+        <scope>runtime</scope>
+      </dependency>
+
+      <!-- test dependencies -->
+      <dependency>
+        <groupId>org.testng</groupId>
+        <artifactId>testng</artifactId>
+        <version>7.4.0</version>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.reflections</groupId>
+        <artifactId>reflections</artifactId>
+        <version>0.9.12</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.tentackle</groupId>
+          <artifactId>tentackle-maven-plugin</artifactId>
+          <version>${tentackle.version}</version>
+          <executions>
+            <execution>
+              <id>analyze</id>
+              <goals>
+                <goal>analyze</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>test-analyze</id>
+              <goals>
+                <goal>test-analyze</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <verbosity>info</verbosity>
+            <showCompileOutput>true</showCompileOutput>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.tentackle</groupId>
+          <artifactId>tentackle-check-maven-plugin</artifactId>
+          <version>${tentackle.version}</version>
+          <executions>
+            <execution>
+              <id>preferences</id>
+              <goals>
+                <goal>bundles</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>validations</id>
+              <goals>
+                <goal>validations</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <verbosity>info</verbosity>
+            <locales>en_US, de_DE</locales>
+            <scriptingLanguage>groovy</scriptingLanguage>
+            <showCompileOutput>true</showCompileOutput>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.tentackle</groupId>
+              <artifactId>tentackle-script-groovy</artifactId>
+              <version>${tentackle.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+
+        <plugin>
+          <groupId>org.tentackle</groupId>
+          <artifactId>tentackle-jlink-maven-plugin</artifactId>
+          <version>${tentackle.version}</version>
+          <extensions>true</extensions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.1</version>
+          <configuration>
+            <encoding>UTF-8</encoding>
+            <release>16</release>
+            <showWarnings>true</showWarnings>
+            <showDeprecation>true</showDeprecation>
+            <compilerArgs>
+              <arg>-Xlint:unchecked,deprecation,removal,requires-transitive-automatic,requires-automatic</arg>
+            </compilerArgs>
+            <!-- necessary since Java 9, see https://issues.apache.org/jira/browse/MCOMPILER-310 -->
+            <annotationProcessorPaths>
+              <dependency>
+                <groupId>org.tentackle</groupId>
+                <artifactId>tentackle-core</artifactId>
+                <version>${tentackle.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.tentackle</groupId>
+                <artifactId>tentackle-pdo</artifactId>
+                <version>${tentackle.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.tentackle</groupId>
+                <artifactId>tentackle-fx</artifactId>
+                <version>${tentackle.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.tentackle</groupId>
+                <artifactId>tentackle-fx-rdc</artifactId>
+                <version>${tentackle.version}</version>
+              </dependency>
+              <dependency>    <!-- necessary for fx-rdc processors because deps are not recognized here -->
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>16</version>
+              </dependency>
+            </annotationProcessorPaths>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.2.0</version>
+          <configuration>
+            <encoding>UTF-8</encoding>
+            <propertiesEncoding>UTF-8</propertiesEncoding>
+            <escapeString>\</escapeString>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.22.2</version>
+          <configuration>
+            <argLine>-Duser.language=en -Duser.region=US</argLine>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.ow2.asm</groupId>
+              <artifactId>asm</artifactId>
+              <version>9.1</version> <!-- Use newer version of ASM -->
+            </dependency>
+          </dependencies>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.1.2</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>3.1.1</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>1.6.0</version>
+          <configuration>
+            <classpathScope>test</classpathScope>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.1.0</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.ow2.asm</groupId>
+              <artifactId>asm</artifactId>
+              <version>9.1</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>keytool-maven-plugin</artifactId>
+          <version>1.5</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <resources>
+      <resource>
+        <directory>${project.basedir}/src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>${project.basedir}/src/main/filtered-resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
+    <testResources>
+      <testResource>
+        <directory>${project.basedir}/src/test/resources</directory>
+      </testResource>
+      <testResource>
+        <directory>${project.basedir}/src/test/filtered-resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+      <testResource>
+        <directory>${tentackle.testServiceDir}</directory>
+      </testResource>
+    </testResources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.tentackle</groupId>
+        <artifactId>tentackle-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.tentackle</groupId>
+        <artifactId>tentackle-check-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+
+  </build>
+
+  <profiles>
+
+    <profile>
+      <id>jlink</id>
+      <modules>
+        <module>jlink</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <!-- generate sources and javadoc -->
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <configuration>
+                  <quiet>true</quiet>
+                  <additionalOptions>
+                    <additionalOption>-html5</additionalOption>
+                    <!-- don't complain about wurblet args -->
+                    <additionalOption>-Xdoclint:none</additionalOption>
+                  </additionalOptions>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>

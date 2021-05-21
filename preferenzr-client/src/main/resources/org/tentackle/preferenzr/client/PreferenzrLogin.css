@@ -1,0 +1,18 @@
+.root {
+  -fx-background-image: url("/org/tentackle/preferenzr/gui/images/login-and-about.png");
+  -fx-background-size: 550 300;
+  -fx-background-position: left;
+  -fx-background-repeat: no-repeat;
+  -fx-background-color: white;
+  -fx-min-width: 600;
+  -fx-min-height: 300;
+  -fx-effect: innershadow(gaussian, lightgray, 2, 1.0, 0, 0);
+}
+
+#messageLabel {
+  -fx-padding: 0 0 0 220;
+}
+
+#progressBar {
+  -fx-padding: 5 0 5 220;
+}

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane fx:id="outerBorderPane" style="-fx-background-color: WHITE;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tentackle.preferenzr.gui.main.MainController">
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu text="%System">
+            <items>
+              <MenuItem fx:id="preferencesItem" mnemonicParsing="false" text="%Preferences" />
+                  <MenuItem fx:id="discardItem" mnemonicParsing="false" text="%discard" />
+              <MenuItem fx:id="exitItem" text="%Exit" />
+            </items>
+          </Menu>
+          <Menu text="%Help">
+            <items>
+              <MenuItem fx:id="helpItem" mnemonicParsing="false" text="%Online Manual" />
+              <MenuItem fx:id="aboutItem" mnemonicParsing="false" text="%About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <center>
+      <BorderPane fx:id="innerBorderPane" BorderPane.alignment="CENTER">
+         <center>
+            <TreeTableView fx:id="preferencesTreeTable">
+              <columns>
+                <TreeTableColumn prefWidth="75.0" text="C1" />
+                <TreeTableColumn prefWidth="75.0" text="C2" />
+              </columns>
+            </TreeTableView>
+         </center>
+      </BorderPane>
+   </center>
+   <bottom>
+      <HBox alignment="BASELINE_RIGHT" spacing="5.0">
+         <children>
+            <Label alignment="BASELINE_LEFT" text="%filter" />
+            <TextField fx:id="filterField" />
+            <Label alignment="BASELINE_LEFT" text="%find">
+               <padding>
+                  <Insets left="10.0" />
+               </padding>
+            </Label>
+            <TextField fx:id="findField">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </TextField>
+            <ToggleButton fx:id="ucLcButton" mnemonicParsing="false" text="%Cc" />
+            <Label fx:id="modificationLabel" alignment="BASELINE_RIGHT" maxWidth="1.7976931348623157E308" text="xxx mods" HBox.hgrow="ALWAYS">
+               <HBox.margin>
+                  <Insets left="15.0" />
+               </HBox.margin></Label>
+            <Button fx:id="saveButton" mnemonicParsing="false" text="%save" />
+         </children>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+      </HBox>
+   </bottom>
+</BorderPane>
