@@ -43,10 +43,6 @@
       <groupId>org.tentackle</groupId>
       <artifactId>tentackle-test-fx-rdc</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.reflections</groupId>
-      <artifactId>reflections</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
@@ -80,6 +76,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <argLine>-Duser.language=en -Duser.region=US</argLine>
+          <argLine>--add-opens org.tentackle.preferenzr.gui/org.tentackle.preferenzr.gui.dto=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
     </plugins>
