@@ -19,6 +19,7 @@
 package org.tentackle.preferenzr.common;
 
 import org.tentackle.app.AbstractApplication;
+import org.tentackle.app.Application;
 import org.tentackle.dbms.Db;
 import org.tentackle.dbms.prefs.DbPreferencesFactory;
 import org.tentackle.dbms.prefs.DbPreferencesKey;
@@ -47,7 +48,7 @@ public class PreferencesRepository implements DomainContextProvider {
   private int modificationCount;                                // number of modified preferences
 
   public PreferencesRepository() {
-    context = AbstractApplication.getRunningApplication().getDomainContext();
+    context = Application.getInstance().getDomainContext();
     listeners = new ArrayList<>();
     preferenceNodes = new TreeMap<>();
     invalid = true;

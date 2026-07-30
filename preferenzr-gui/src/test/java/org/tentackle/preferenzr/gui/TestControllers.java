@@ -4,7 +4,7 @@
 
 package org.tentackle.preferenzr.gui;
 
-import org.tentackle.test.fx.rdc.ControllerTest;
+import org.tentackle.fx.rdc.testng.ControllerTest;
 
 /**
  * Tests all FX controllers.

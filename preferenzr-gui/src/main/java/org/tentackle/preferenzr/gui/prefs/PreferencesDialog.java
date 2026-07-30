@@ -49,16 +49,16 @@ public class PreferencesDialog extends AbstractFxController {
   private void initialize() {
     generalTab.setContent(createTab(GeneralPreferences.class));
 
-    cancelButton.setGraphic(Fx.createImageView("cancel"));
+    cancelButton.setGraphic(Fx.createGraphic("cancel"));
     cancelButton.setOnAction(e -> getStage().hide());
 
-    saveButton.setGraphic(Fx.createImageView("save"));
+    saveButton.setGraphic(Fx.createGraphic("save"));
     saveButton.setOnAction(e -> {
       try {
         PreferenzrPreferences.getInstance().sync();
       }
       catch (BackingStoreException ex) {
-        Fx.error(resources.getString("saveFailed"), ex);
+        Fx.error(getView(), resources.getString("saveFailed"), ex);
       }
       getStage().hide();
     });
@@ -74,7 +74,7 @@ public class PreferencesDialog extends AbstractFxController {
    */
   private <T extends FxController> Node createTab(Class<T> controllerClass) {
     Parent view = Fx.load(controllerClass).getView();
-    BorderPane pane = Fx.createNode(BorderPane.class);
+    BorderPane pane = Fx.create(BorderPane.class);
     pane.setCenter(view);
     BorderPane.setMargin(view, new Insets(5));
     return pane;
@@ -83,8 +83,8 @@ public class PreferencesDialog extends AbstractFxController {
   /**
    * Shows the modal preferences window.
    */
-  public static void show() {
-    Stage stage = Fx.createStage(Modality.APPLICATION_MODAL);
+  public static void show(Object owner) {
+    Stage stage = Fx.createStage(Modality.APPLICATION_MODAL, owner);
     PreferencesDialog pp = Fx.load(PreferencesDialog.class);
     Scene scene = Fx.createScene(pp.getView());
     stage.setScene(scene);

@@ -7,6 +7,7 @@ package org.tentackle.preferenzr.client;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import org.tentackle.misc.Identifiable;
 import org.tentackle.preferenzr.common.Version;
 import org.tentackle.preferenzr.gui.GuiBundle;
 import org.tentackle.preferenzr.gui.main.MainController;
@@ -74,7 +75,7 @@ public class PreferenzrFxClient extends DesktopApplication<MainController> {
   }
 
   @Override
-  public <U extends PersistentDomainObject<U>> U getUser(DomainContext context, long userId) {
+  public <U extends Identifiable> U getUser(DomainContext context, long userId) {
     return null;    // no users, security manager disabled
   }
 

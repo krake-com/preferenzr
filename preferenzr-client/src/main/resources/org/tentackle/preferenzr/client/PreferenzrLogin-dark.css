@@ -1,0 +1,26 @@
+.root {
+  -fx-background-image: url("/org/tentackle/preferenzr/gui/images/login-and-about-dark.png");
+  -fx-background-size: 550 300;
+  -fx-background-position: left;
+  -fx-background-repeat: no-repeat;
+  -fx-background-color: black;
+  -fx-min-width: 600;
+  -fx-min-height: 300;
+  -fx-effect: innershadow(gaussian, darkgray, 2, 1.0, 0, 0);
+}
+
+#messageLabel {
+  -fx-padding: 0 0 0 220;
+}
+
+#progressBar {
+  -fx-padding: 5 0 5 220;
+}
+
+#loginPane {
+  -fx-padding: 0 0 0 200;
+}
+
+#revealButton {
+  -fx-background-color: transparent;
+}

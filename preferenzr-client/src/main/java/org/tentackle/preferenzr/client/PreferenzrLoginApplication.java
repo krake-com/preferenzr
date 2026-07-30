@@ -5,6 +5,7 @@
 package org.tentackle.preferenzr.client;
 
 import org.tentackle.fx.FxFactory;
+import org.tentackle.fx.ThemeUtilities;
 import org.tentackle.fx.rdc.app.LoginApplication;
 import org.tentackle.fx.rdc.login.Login;
 
@@ -17,9 +18,11 @@ public class PreferenzrLoginApplication extends LoginApplication {
 
   @Override
   protected Login loadLoginController() {
-    URL cssUrl = PreferenzrLoginApplication.class.getResource("/org/tentackle/preferenzr/client/PreferenzrLogin.css");
-    Login loginController = FxFactory.getInstance().createController(PreferenzrLogin.class, null, null, cssUrl);
-    return loginController;
+    return FxFactory.getInstance().createController(
+      PreferenzrLogin.class, null, null,
+      getClass().getResource(ThemeUtilities.getInstance().isDarkMode() ?
+                               "/org/tentackle/preferenzr/client/PreferenzrLogin-dark.css" :
+                               "/org/tentackle/preferenzr/client/PreferenzrLogin.css"));
   }
 
 }

@@ -45,7 +45,7 @@ public class PreferenceNodeTreeItem<T extends PreferenceNode> extends TreeItem<T
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public ObservableList<TreeItem<T>> getChildren() {
     if (!childrenLoaded) {
       childrenLoaded = true;

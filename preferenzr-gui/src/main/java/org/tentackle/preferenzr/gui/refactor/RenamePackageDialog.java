@@ -50,8 +50,8 @@ public class RenamePackageDialog extends AbstractFxController {
    * @param preferencesRepository the preference repository
    * @param done invoked when dialog is done
    */
-  public static void show(String packageName, PreferencesRepository preferencesRepository, Runnable done) {
-    Stage stage = Fx.createStage(Modality.NONE);
+  public static void show(Object owner, String packageName, PreferencesRepository preferencesRepository, Runnable done) {
+    Stage stage = Fx.createStage(Modality.NONE, owner);
     RenamePackageDialog dialog = Fx.load(RenamePackageDialog.class);
     dialog.oldName = Objects.requireNonNull(packageName);
     dialog.preferencesRepository = preferencesRepository;
@@ -108,11 +108,11 @@ public class RenamePackageDialog extends AbstractFxController {
         done = true;
       }
       catch (ConstraintException cx) {
-        Fx.error(MessageFormat.format(resources.getString("cannot override existing preferences in package {0}"), newName));
+        Fx.error(getView(), MessageFormat.format(resources.getString("cannot override existing preferences in package {0}"), newName));
       }
     }
     else {
-      Fx.error(MessageFormat.format(resources.getString("not a valid package name: {0}"), newName));
+      Fx.error(getView(), MessageFormat.format(resources.getString("not a valid package name: {0}"), newName));
     }
     getStage().close();
   }

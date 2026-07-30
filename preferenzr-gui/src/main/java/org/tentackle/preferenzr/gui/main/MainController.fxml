@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane fx:id="outerBorderPane" style="-fx-background-color: WHITE;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tentackle.preferenzr.gui.main.MainController">
+<BorderPane fx:id="outerBorderPane" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tentackle.preferenzr.gui.main.MainController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>

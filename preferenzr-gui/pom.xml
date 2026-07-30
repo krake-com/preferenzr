@@ -28,7 +28,16 @@
       <artifactId>tentackle-fx-rdc</artifactId>
     </dependency>
 
-    <!-- tests only -->
+    <!-- only for testing -->
+    <dependency>
+      <groupId>org.tentackle</groupId>
+      <artifactId>tentackle-test-fx-rdc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.tentackle</groupId>
+      <artifactId>tentackle-script-groovy</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.tentackle</groupId>
       <artifactId>tentackle-persistence</artifactId>
@@ -38,10 +47,6 @@
       <groupId>org.tentackle</groupId>
       <artifactId>tentackle-domain</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.tentackle</groupId>
-      <artifactId>tentackle-test-fx-rdc</artifactId>
     </dependency>
   </dependencies>
 

@@ -17,6 +17,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.WindowEvent;
 
 import org.tentackle.app.AbstractApplication;
+import org.tentackle.app.Application;
 import org.tentackle.bind.Bindable;
 import org.tentackle.common.StringHelper;
 import org.tentackle.common.TentackleRuntimeException;
@@ -121,29 +122,29 @@ public class MainController extends AbstractFxController implements DomainContex
 
   @Override
   public DomainContext getDomainContext() {
-    return AbstractApplication.getRunningApplication().getDomainContext();
+    return Application.getInstance().getDomainContext();
   }
 
   @FXML
   public void initialize() {
     preferencesRepository = new PreferencesRepository();
 
-    preferencesItem.setGraphic(Fx.createImageView("preferences"));
+    preferencesItem.setGraphic(Fx.createGraphic("preferences"));
     preferencesItem.setDisable(!SecurityFactory.getInstance().getSecurityManager().evaluate(
                 getDomainContext(), SecurityFactory.getInstance().getExecutePermission(), PreferencesDialog.class).isAccepted());
-    preferencesItem.setOnAction(e -> PreferencesDialog.show());
+    preferencesItem.setOnAction(e -> PreferencesDialog.show(getView()));
 
-    discardItem.setGraphic(Fx.createImageView("reload"));
+    discardItem.setGraphic(Fx.createGraphic("reload"));
     discardItem.setOnAction(e -> loadRepository());
 
-    exitItem.setGraphic(Fx.createImageView("exit"));
+    exitItem.setGraphic(Fx.createGraphic("exit"));
     exitItem.setOnAction(e -> exit());
 
-    helpItem.setGraphic(Fx.createImageView("help"));
+    helpItem.setGraphic(Fx.createGraphic("help"));
     helpItem.setOnAction(e -> help());
 
-    aboutItem.setGraphic(Fx.createImageView("about"));
-    aboutItem.setOnAction(e -> AboutView.showDialog());
+    aboutItem.setGraphic(Fx.createGraphic("about"));
+    aboutItem.setOnAction(e -> AboutView.showDialog(getView()));
 
 //    preferenceEditor = Fx.load(BundleEditor.class);
 //    innerBorderPane.setRight(preferenceEditor.getView());
@@ -246,7 +247,7 @@ public class MainController extends AbstractFxController implements DomainContex
    * Asks the user whether to exit the application and does so if yes.
    */
   public void exit() {
-    Fx.yes(preferencesRepository.getModificationCount() != 0 ?
+    Fx.yes(getView(), preferencesRepository.getModificationCount() != 0 ?
            resources.getString("ExitModifiedAction") :
            resources.getString("ExitAction"),
            false, Platform::exit);
@@ -564,7 +565,7 @@ public class MainController extends AbstractFxController implements DomainContex
   private void help() {
     String helpUrl = PreferenzrPreferences.getInstance().getHelpUrl();
     if (StringHelper.isAllWhitespace(helpUrl)) {
-      Fx.info("Help URL not configured. Please edit the Preferences!");
+      Fx.info(getView(), "Help URL not configured. Please edit the Preferences!");
     }
     else {
       // extra thread because Desktop blocks FX thread

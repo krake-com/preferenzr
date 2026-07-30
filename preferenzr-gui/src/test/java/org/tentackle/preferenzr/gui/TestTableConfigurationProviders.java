@@ -4,7 +4,7 @@
 
 package org.tentackle.preferenzr.gui;
 
-import org.tentackle.test.fx.rdc.TableConfigurationProviderTest;
+import org.tentackle.fx.rdc.testng.TableConfigurationProviderTest;
 
 /**
  * Tests all TableConfigurationProviders.

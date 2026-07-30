@@ -21,6 +21,11 @@
 
     <dependency>
       <groupId>org.tentackle</groupId>
+      <artifactId>tentackle-fx-atlanta</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.tentackle</groupId>
       <artifactId>preferenzr-gui</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -35,14 +40,9 @@
     </dependency>
     <dependency>
       <groupId>org.tentackle</groupId>
-      <artifactId>tentackle-log-slf4j</artifactId>
+      <artifactId>tentackle-log-log4j2v</artifactId>
     </dependency>
 
-    <!-- runtime only -->
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
@@ -63,17 +63,6 @@
               <mainClass>org.tentackle.preferenzr.client.PreferenzrFxClient</mainClass>
             </manifestEntries>
           </archive>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <configuration>
-          <mainClass>org.tentackle.preferenzr.client.PreferenzrFxClient</mainClass>
-          <arguments>
-            <argument>--statistics</argument>
-          </arguments>
         </configuration>
       </plugin>
     </plugins>

@@ -4,18 +4,13 @@
 
 package org.tentackle.preferenzr.gui;
 
-import org.tentackle.fx.DefaultImageProvider;
-import org.tentackle.fx.ImageProviderService;
+import org.tentackle.fx.DefaultGraphicProvider;
+import org.tentackle.fx.GraphicProviderService;
 
 /**
  * Application specific image provider.
  */
-@ImageProviderService(PreferenzrImageProvider.REALM)
-public class PreferenzrImageProvider extends DefaultImageProvider {
-
-  /**
-   * The application's image realm.
-   */
-  public static final String REALM = "Preferenzr";
+@GraphicProviderService
+public class PreferenzrImageProvider extends DefaultGraphicProvider {
 
 }

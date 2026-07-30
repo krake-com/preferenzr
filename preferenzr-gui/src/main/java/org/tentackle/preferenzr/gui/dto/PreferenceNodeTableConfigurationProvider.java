@@ -32,11 +32,11 @@ import org.tentackle.fx.table.TableConfigurationProviderService;
 public class PreferenceNodeTableConfigurationProvider extends DefaultTableConfigurationProvider<PreferenceNode> {
 
   @Override
-  protected TableConfiguration<PreferenceNode> createTableConfiguration(Class<PreferenceNode> clazz, String name) {
-    return new PreferenceNodeTableConfiguration<>(clazz, name) {
+  protected TableConfiguration<PreferenceNode> createEmptyTableConfiguration(String name) {
+    return new PreferenceNodeTableConfiguration<>(getElementClass(), name) {
 
       @Override
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({ "unchecked", "rawtypes" })
       public TreeItem<PreferenceNode> createTreeItem(PreferenceNode object) {
         return new PreferenceNodeTreeItem(object);
       }
