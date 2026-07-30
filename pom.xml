@@ -47,7 +47,7 @@
     <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <tentackle.version>25.0-SNAPSHOT</tentackle.version>
+    <tentackle.version>25.18.2.1</tentackle.version>
     <h2.version>2.4.240</h2.version>
     <tentackle.serviceDir>${project.build.directory}/generated-resources/services</tentackle.serviceDir>
     <tentackle.testServiceDir>${project.build.directory}/generated-test-resources/services</tentackle.testServiceDir>
