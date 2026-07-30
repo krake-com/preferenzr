@@ -9,7 +9,7 @@
 
   <name>Preferenzr Parent</name>
   <description>Parent Project for Preferenzr</description>
-  <url>https://tentackle.org/</url>
+  <url>https://tentackle.org/preferenzr/</url>
   <organization>
     <name>Krake Softwaretechnik</name>
     <url>https://krake.de/</url>
@@ -52,7 +52,6 @@
     <tentackle.serviceDir>${project.build.directory}/generated-resources/services</tentackle.serviceDir>
     <tentackle.testServiceDir>${project.build.directory}/generated-test-resources/services</tentackle.testServiceDir>
     <tentackle.manifestDirectory>${project.build.directory}/generated-resources/manifest</tentackle.manifestDirectory>
-    <tentackle.modelDefaults>remote, bind, size, autoselect, tracked, root, rootid, rootclassid</tentackle.modelDefaults>
 
   </properties>
 
