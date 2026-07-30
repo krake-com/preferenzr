@@ -175,6 +175,8 @@ public class PreferencesRepository implements DomainContextProvider {
     List<DbPreferencesNode> dbPreferencesNodes = new DbPreferencesNode((Db) getDomainContext().getSession()).selectAllObjects();
     List<DbPreferencesKey> dbPreferencesKeys = new DbPreferencesKey((Db) getDomainContext().getSession()).selectAllObjects();
 
+    // TODO: convert to Preferenzr DTOs (PreferenceNode, PreferenceKey)
+
     modificationCount = 0;
   }
 
