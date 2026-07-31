@@ -30,8 +30,8 @@ public class PreferenzrFxClient extends DesktopApplication<MainController> {
    * <ul>
    * <li>single connection (usually directly via JDBC)</li>
    * <li>no modification tracker and no caching</li>
-   * <li>disabled security managar</li>
-   * <li>database access only to the tables <code>preference</code>, <code>preferencekey</code>, <code>modification</code>
+   * <li>disabled security manager</li>
+   * <li>database access only to the tables <code>prefnode</code>, <code>prefkey</code>, <code>modification</code>
    * and the <code>object_sequence_id</code>.
    * Allows to access the database as a user with limited privileges.</li>
    * </ul>

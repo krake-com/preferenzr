@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefWidth="340.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tentackle.preferenzr.gui.editor.PreferenceEditor">
+   <children>
+      <GridPane hgap="8.0" vgap="4.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+          <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints />
+          <RowConstraints />
+          <RowConstraints />
+        </rowConstraints>
+         <children>
+            <Label text="%scope" />
+            <Label fx:id="scopeLabel" GridPane.columnIndex="1" />
+            <Label text="%node" GridPane.rowIndex="1" />
+            <Label fx:id="pathLabel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="%key" GridPane.rowIndex="2" />
+            <Label fx:id="keyLabel" GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </Label>
+         </children>
+         <VBox.margin>
+            <Insets bottom="5.0" left="10.0" right="10.0" top="10.0" />
+         </VBox.margin>
+      </GridPane>
+      <TextArea fx:id="preferenceValue" VBox.vgrow="ALWAYS">
+         <VBox.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
+         </VBox.margin>
+      </TextArea>
+   </children>
+</VBox>

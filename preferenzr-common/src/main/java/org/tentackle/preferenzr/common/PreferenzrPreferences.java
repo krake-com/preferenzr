@@ -25,11 +25,11 @@ public class PreferenzrPreferences extends CompositePreferences {
   /** online help prefix. */
   public static final String HELP_URL = "helpURL";
 
-  /** number of visible rows for the translation text area. */
-  public static final String TRANSLATION_ROWS = "translationRows";
+  /** number of visible rows for the value text area. */
+  public static final String VALUE_ROWS = "valueRows";
 
-  /** number of visible columns for the translation text area. */
-  public static final String TRANSLATION_COLUMNS = "translationColumns";
+  /** directory last used to dump or load preferences. */
+  public static final String DUMP_DIRECTORY = "dumpDirectory";
 
 
   public PreferenzrPreferences() {
@@ -58,23 +58,23 @@ public class PreferenzrPreferences extends CompositePreferences {
   }
 
   @Bindable
-  public int getTranslationRows() {
-    return getInt(TRANSLATION_ROWS, 5);
+  public int getValueRows() {
+    return getInt(VALUE_ROWS, 10);
   }
 
   @Bindable
-  public void setTranslationRows(int rows) {
-    setInteger(TRANSLATION_ROWS, rows);
+  public void setValueRows(int rows) {
+    setInteger(VALUE_ROWS, rows);
   }
 
   @Bindable
-  public int getTranslationColumns() {
-    return getInt(TRANSLATION_COLUMNS, 40);
+  public String getDumpDirectory() {
+    return getString(DUMP_DIRECTORY);
   }
 
   @Bindable
-  public void setTranslationColumns(int columns) {
-    setInteger(TRANSLATION_COLUMNS, columns);
+  public void setDumpDirectory(String directory) {
+    setString(DUMP_DIRECTORY, directory);
   }
 
 }

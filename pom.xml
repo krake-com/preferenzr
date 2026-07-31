@@ -47,6 +47,9 @@
     <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+    <javac.version>25</javac.version>
+    <javafx.version>26.0.1</javafx.version>
+    <ow2.asm.version>9.10</ow2.asm.version>
     <tentackle.version>25.0-SNAPSHOT</tentackle.version>
     <h2.version>2.4.240</h2.version>
     <tentackle.serviceDir>${project.build.directory}/generated-resources/services</tentackle.serviceDir>
@@ -92,14 +95,6 @@
         <version>${tentackle.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-
-      <!-- runtime dependencies -->
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>1.2.3</version>
-        <scope>runtime</scope>
       </dependency>
 
       <!-- test dependencies -->
@@ -219,7 +214,7 @@
           <version>3.8.1</version>
           <configuration>
             <encoding>UTF-8</encoding>
-            <release>16</release>
+            <release>${javac.version}</release>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
             <compilerArgs>
@@ -250,7 +245,7 @@
               <dependency>    <!-- necessary for fx-rdc processors because deps are not recognized here -->
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-controls</artifactId>
-                <version>16</version>
+                <version>${javafx.version}</version>
               </dependency>
             </annotationProcessorPaths>
           </configuration>
@@ -270,7 +265,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.2</version>
+          <version>3.5.5</version>
           <configuration>
             <argLine>-Duser.language=en -Duser.region=US</argLine>
           </configuration>
@@ -278,7 +273,7 @@
             <dependency>
               <groupId>org.ow2.asm</groupId>
               <artifactId>asm</artifactId>
-              <version>9.1</version> <!-- Use newer version of ASM -->
+              <version>${ow2.asm.version}</version>   <!-- must understand the class file version of ${javac.version} -->
             </dependency>
           </dependencies>
         </plugin>

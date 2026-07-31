@@ -25,18 +25,22 @@ import org.tentackle.preferenzr.common.PreferenceNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
- * Tree item for a {@link PreferenceNode}.
+ * Tree item for a {@link PreferenceNode}.<br>
+ * The children are loaded lazily and optionally filtered.
  *
  * @param <T> the node type
  */
 public class PreferenceNodeTreeItem<T extends PreferenceNode> extends TreeItem<T> {
 
+  private final Predicate<T> predicate;
   private boolean childrenLoaded;
 
-  public PreferenceNodeTreeItem(T node) {
+  public PreferenceNodeTreeItem(T node, Predicate<T> predicate) {
     super(node);
+    this.predicate = predicate;
   }
 
   @Override
@@ -54,7 +58,9 @@ public class PreferenceNodeTreeItem<T extends PreferenceNode> extends TreeItem<T
         List<? extends PreferenceNode> nodes = getValue().getNodes();
         if (nodes != null) {
           for (PreferenceNode node : nodes) {
-            childItems.add(new PreferenceNodeTreeItem(node));
+            if (predicate == null || predicate.test((T) node)) {
+              childItems.add(new PreferenceNodeTreeItem(node, predicate));
+            }
           }
         }
       }

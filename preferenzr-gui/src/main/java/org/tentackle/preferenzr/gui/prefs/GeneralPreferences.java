@@ -19,9 +19,6 @@ public class GeneralPreferences extends AbstractPreferencesTabController {
   private FxTextField prefHelpUrl;
 
   @FXML
-  private FxTextField prefTranslationRows;
-
-  @FXML
-  private FxTextField prefTranslationColumns;
+  private FxTextField prefValueRows;
 
 }
