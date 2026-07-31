@@ -6,6 +6,8 @@ Tentackle applications store their preferences in the database rather than in th
 `java.util.prefs` store (see `org.tentackle.dbms.prefs`, tables `prefnode` and `prefkey`).
 Preferenzr connects to such a database and lets you work with those trees directly.
 
+See the [user manual](src/main/docs/manual.md) for a description of all features and how to use them.
+
 ## Features
 
 - **Browse** the system preferences and the preferences of every user in a single tree.
