@@ -23,7 +23,8 @@ import org.tentackle.bind.Bindable;
 import java.util.List;
 
 /**
- * A preference node.
+ * A node within the preferences tree.<br>
+ * Implemented by {@link PreferenceEntry} (a preferences node) and {@link PreferenceValue} (a key).
  */
 public interface PreferenceNode {
 
@@ -44,11 +45,33 @@ public interface PreferenceNode {
   String getValue();
 
   /**
+   * Gets the absolute path of this node within its preferences tree.<br>
+   * For keys this is the path of the node the key belongs to.
+   *
+   * @return the absolute path, starting with a slash
+   */
+  String getPath();
+
+  /**
+   * Gets the user this node belongs to.
+   *
+   * @return the username, null if system preferences
+   */
+  String getUser();
+
+  /**
    * Gets the optional subnodes of this node.
    *
    * @return the nodes, null if this node has no subnodes
    */
   List<? extends PreferenceNode> getNodes();
+
+  /**
+   * Gets the pending modification of this node.
+   *
+   * @return the state, never null
+   */
+  PreferenceState getState();
 
   /**
    * Invoked whenever there were changes.

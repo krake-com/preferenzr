@@ -6,22 +6,16 @@ package org.tentackle.preferenzr.gui.about;
 
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Modality;
 import javafx.stage.Popup;
-import javafx.stage.Stage;
 
+import org.tentackle.fx.AbstractFxController;
+import org.tentackle.fx.Fx;
+import org.tentackle.fx.FxControllerService;
 import org.tentackle.fx.FxFactory;
 import org.tentackle.fx.FxUtilities;
 import org.tentackle.fx.NotificationBuilder;
 import org.tentackle.fx.ThemeUtilities;
-import org.tentackle.preferenzr.gui.GuiBundle;
-import org.tentackle.fx.AbstractFxController;
-import org.tentackle.fx.Fx;
-import org.tentackle.fx.FxControllerService;
-import org.tentackle.fx.component.FxButton;
 import org.tentackle.fx.component.FxLabel;
-import org.tentackle.preferenzr.common.Version;
 
 /**
  * Controller for showing an about dialog.

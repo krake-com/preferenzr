@@ -21,6 +21,8 @@ package org.tentackle.preferenzr.gui.dto;
 import org.tentackle.preferenzr.common.PreferenceNode;
 import org.tentackle.fx.table.DefaultTableConfiguration;
 
+import java.util.function.Predicate;
+
 /**
  * Table configuration for a preference node.
  *
@@ -28,8 +30,29 @@ import org.tentackle.fx.table.DefaultTableConfiguration;
  */
 public class PreferenceNodeTableConfiguration<T extends PreferenceNode> extends DefaultTableConfiguration<T> {
 
+  private Predicate<T> predicate;    // filters the tree items, null if show all
+
   public PreferenceNodeTableConfiguration(Class<T> objectClass, String name) {
     super(objectClass, name);
+  }
+
+  /**
+   * Gets the filter applied to the tree items.
+   *
+   * @return the predicate, null if all nodes are shown
+   */
+  public Predicate<T> getPredicate() {
+    return predicate;
+  }
+
+  /**
+   * Sets the filter applied to the tree items.<br>
+   * Takes effect when the tree items are rebuilt, i.e. on the next {@code updateView()}.
+   *
+   * @param predicate the predicate, null to show all nodes
+   */
+  public void setPredicate(Predicate<T> predicate) {
+    this.predicate = predicate;
   }
 
 }

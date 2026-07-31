@@ -38,7 +38,7 @@ public class PreferenceNodeTableConfigurationProvider extends DefaultTableConfig
       @Override
       @SuppressWarnings({ "unchecked", "rawtypes" })
       public TreeItem<PreferenceNode> createTreeItem(PreferenceNode object) {
-        return new PreferenceNodeTreeItem(object);
+        return new PreferenceNodeTreeItem(object, getPredicate());
       }
     };
   }

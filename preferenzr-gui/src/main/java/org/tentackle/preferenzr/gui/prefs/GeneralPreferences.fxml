@@ -13,14 +13,11 @@
   <rowConstraints>
     <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
   </rowConstraints>
   <children>
     <Label text="%prefHelpUrl" GridPane.halignment="RIGHT" />
     <TextField fx:id="prefHelpUrl" prefColumnCount="30" GridPane.columnIndex="1" />
-      <Label text="%translationRows" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
-      <Label text="%translationColumns" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
-      <TextField fx:id="prefTranslationRows" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      <TextField fx:id="prefTranslationColumns" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+      <Label text="%valueRows" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+      <TextField fx:id="prefValueRows" GridPane.columnIndex="1" GridPane.rowIndex="1" />
   </children>
 </GridPane>

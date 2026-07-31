@@ -5,18 +5,20 @@
 package org.tentackle.preferenzr.gui.main;
 
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableRow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
 
-import org.tentackle.app.AbstractApplication;
 import org.tentackle.app.Application;
 import org.tentackle.bind.Bindable;
 import org.tentackle.common.StringHelper;
@@ -34,30 +36,48 @@ import org.tentackle.fx.rdc.table.TablePopup;
 import org.tentackle.misc.Holder;
 import org.tentackle.pdo.DomainContext;
 import org.tentackle.pdo.DomainContextProvider;
-import org.tentackle.preferenzr.common.PreferenzrPreferences;
-import org.tentackle.preferenzr.common.PreferenceNode;
-import org.tentackle.preferenzr.common.PreferencesRepository;
 import org.tentackle.preferenzr.common.CommonBundle;
+import org.tentackle.preferenzr.common.PreferenceEntry;
+import org.tentackle.preferenzr.common.PreferenceNode;
+import org.tentackle.preferenzr.common.PreferenceState;
+import org.tentackle.preferenzr.common.PreferenceValue;
+import org.tentackle.preferenzr.common.PreferencesDump;
+import org.tentackle.preferenzr.common.PreferencesRepository;
+import org.tentackle.preferenzr.common.PreferenzrPreferences;
 import org.tentackle.preferenzr.gui.about.AboutView;
+import org.tentackle.preferenzr.gui.dto.PreferenceNodeTableConfiguration;
+import org.tentackle.preferenzr.gui.edit.NewKeyDialog;
+import org.tentackle.preferenzr.gui.edit.NewNodeDialog;
+import org.tentackle.preferenzr.gui.editor.PreferenceEditor;
+import org.tentackle.preferenzr.gui.load.LoadDumpDialog;
 import org.tentackle.preferenzr.gui.prefs.PreferencesDialog;
 import org.tentackle.security.SecurityFactory;
 
 import java.awt.Desktop;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 
 /**
- * Bundle monkey main controller.
+ * Preferenzr main controller.
  */
-@FxControllerService
+@FxControllerService(cssDarkAware = true)
 public class MainController extends AbstractFxController implements DomainContextProvider {
 
   private static final String STYLE_MODIFIED = "preference-modified";   // css style for modified preference nodes
+  private static final String STYLE_NEW = "preference-new";             // css style for added preference nodes
+  private static final String STYLE_REMOVED = "preference-removed";     // css style for removed preference nodes
+
+  private static final String DUMP_EXTENSION = ".xml";                  // filename extension of a dump file
 
   @Bindable
   private Collection<? extends PreferenceNode> preferences;       // preference nodes shown in tree table
@@ -67,14 +87,20 @@ public class MainController extends AbstractFxController implements DomainContex
   private String lastFilter;                              // last filter setting
 
   @Bindable
-  private String find;                                    // search text for keys and translations
+  private String find;                                    // search text for keys and values
   private String lastFind;                                // last search
 
   @FXML
   private BorderPane outerBorderPane;                     // outer borderpane with menu, inner borderpane and buttons below
 
   @FXML
-  private BorderPane innerBorderPane;                     // inner border pane with locale selector, tree table and preference editor
+  private BorderPane innerBorderPane;                     // inner border pane with tree table and preference editor
+
+  @FXML
+  private MenuItem dumpItem;
+
+  @FXML
+  private MenuItem loadItem;
 
   @FXML
   private MenuItem preferencesItem;
@@ -112,12 +138,12 @@ public class MainController extends AbstractFxController implements DomainContex
   @FXML
   private ResourceBundle resources;
 
-  private PreferencesRepository preferencesRepository;                      // the internal preference model
-  private TablePopup<PreferenceNode> preferenceNodeTablePopup;            // popup menu and config
-  private List<TreeItem<PreferenceNode>> preferenceTreeItems;             // all tree items
-  private TreeItem<PreferenceNode> foundItem;                         // != null if current found item
-  private int foundIndex;                                         // index in preferenceTreeItems if foundItem != null
-  private String foundLocale;                                     // != null if current found translation
+  private PreferencesRepository preferencesRepository;             // the internal preference model
+  private PreferenceEditor preferenceEditor;                       // the value editor on the right
+  private TablePopup<PreferenceNode> preferenceNodeTablePopup;     // popup menu and config
+  private List<TreeItem<PreferenceNode>> preferenceTreeItems;      // all tree items
+  private TreeItem<PreferenceNode> foundItem;                      // != null if current found item
+  private int foundIndex;                                          // index in preferenceTreeItems if foundItem != null
 
 
   @Override
@@ -128,6 +154,12 @@ public class MainController extends AbstractFxController implements DomainContex
   @FXML
   public void initialize() {
     preferencesRepository = new PreferencesRepository();
+
+    dumpItem.setGraphic(Fx.createGraphic("save"));
+    dumpItem.setOnAction(e -> dump());
+
+    loadItem.setGraphic(Fx.createGraphic("add"));
+    loadItem.setOnAction(e -> load());
 
     preferencesItem.setGraphic(Fx.createGraphic("preferences"));
     preferencesItem.setDisable(!SecurityFactory.getInstance().getSecurityManager().evaluate(
@@ -146,13 +178,13 @@ public class MainController extends AbstractFxController implements DomainContex
     aboutItem.setGraphic(Fx.createGraphic("about"));
     aboutItem.setOnAction(e -> AboutView.showDialog(getView()));
 
-//    preferenceEditor = Fx.load(BundleEditor.class);
-//    innerBorderPane.setRight(preferenceEditor.getView());
-//
-//    preferencesTreeTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<TreeItem<BundleNode>>) c -> {
-//      TreeItem<BundleNode> selectedItem = preferencesTreeTable.getSelectionModel().getSelectedItem();
-//      preferenceEditor.setBundleNode(selectedItem == null ? null : selectedItem.getValue());
-//    });
+    preferenceEditor = Fx.load(PreferenceEditor.class);
+    innerBorderPane.setRight(preferenceEditor.getView());
+
+    preferencesTreeTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<TreeItem<PreferenceNode>>) c -> {
+      TreeItem<PreferenceNode> selectedItem = preferencesTreeTable.getSelectionModel().getSelectedItem();
+      preferenceEditor.setNode(selectedItem == null ? null : selectedItem.getValue());
+    });
 
     filterField.setAutoSelect(true);
     filterField.setOnAction(e -> {
@@ -188,16 +220,9 @@ public class MainController extends AbstractFxController implements DomainContex
       @Override
       protected void updateItem(PreferenceNode item, boolean empty) {
         super.updateItem(item, empty);
-        if (item != null) {
-            if (item.getModificationCount() != 0) {
-              if (!getStyleClass().contains(STYLE_MODIFIED)) {
-                getStyleClass().add(STYLE_MODIFIED);
-              }
-            }
-            else {
-              getStyleClass().remove(STYLE_MODIFIED);
-            }
-          }
+        applyStyle(getStyleClass(), STYLE_NEW, item != null && item.getState() == PreferenceState.NEW);
+        applyStyle(getStyleClass(), STYLE_REMOVED, item != null && item.getState() == PreferenceState.REMOVED);
+        applyStyle(getStyleClass(), STYLE_MODIFIED, item != null && item.getState() == PreferenceState.MODIFIED);
       }
     });
 
@@ -235,12 +260,14 @@ public class MainController extends AbstractFxController implements DomainContex
       }
     });
 
-    preferenceNodeTablePopup = Rdc.createTablePopup(preferencesTreeTable, "preferencesTreeTable", resources.getString("Bundles"));
+    preferenceNodeTablePopup = Rdc.createTablePopup(preferencesTreeTable, "preferencesTreeTable",
+                                                    resources.getString("Preferences"));
     preferenceNodeTablePopup.setColumnMenuEnabled(false);
     preferenceNodeTablePopup.loadPreferences();
     preferencesRepository.addPreferencesUpdatedListener(this::preferencesUpdated);
     loadRepository();
     configureContextMenu();
+//    Platform.runLater(() -> warnAboutOrphans());
   }
 
   /**
@@ -259,20 +286,197 @@ public class MainController extends AbstractFxController implements DomainContex
    */
   private void configureContextMenu() {
     ContextMenu contextMenu = preferencesTreeTable.getContextMenu();
-    MenuItem renameBundleItem = new MenuItem();
-    renameBundleItem.setText(resources.getString("rename preference"));
-//    renameBundleItem.setOnAction(e -> renameBundle());
-    contextMenu.getItems().add(0, renameBundleItem);
-    MenuItem renamePackageItem = new MenuItem();
-    renamePackageItem.setText(resources.getString("rename package"));
-//    renamePackageItem.setOnAction(e -> renamePackage());
-    contextMenu.getItems().add(0, renamePackageItem);
+    MenuItem newNodeItem = new MenuItem(resources.getString("new node"));
+    newNodeItem.setOnAction(e -> createNode());
+    MenuItem newKeyItem = new MenuItem(resources.getString("new key"));
+    newKeyItem.setOnAction(e -> createKey());
+    MenuItem removeItem = new MenuItem(resources.getString("remove"));
+    removeItem.setOnAction(e -> removeSelectedNode());
+    contextMenu.getItems().addAll(0, List.of(newNodeItem, newKeyItem, removeItem, new SeparatorMenuItem()));
     contextMenu.addEventHandler(WindowEvent.WINDOW_SHOWING, event -> {
-      TreeItem<PreferenceNode> selectedItem = preferencesTreeTable.getSelectionModel().getSelectedItem();
-      boolean disable = selectedItem == null || preferencesRepository.getModificationCount() != 0;
-      renameBundleItem.setDisable(disable);
-      renamePackageItem.setDisable(disable);
+      PreferenceNode selectedNode = getSelectedNode();
+      boolean entrySelected = selectedNode instanceof PreferenceEntry &&
+                              selectedNode.getState() != PreferenceState.REMOVED;
+      newNodeItem.setDisable(!entrySelected);
+      newKeyItem.setDisable(!entrySelected);
+      removeItem.setDisable(selectedNode == null || selectedNode.getState() == PreferenceState.REMOVED);
     });
+  }
+
+  /**
+   * Warns the user about orphan nodes and keys found in the database.
+   */
+  private void warnAboutOrphans() {
+    List<String> orphans = preferencesRepository.getOrphans();
+    if (!orphans.isEmpty()) {
+      Fx.warning(getView(), MessageFormat.format(resources.getString("{0} orphans found:\n{1}"),
+                                                 orphans.size(), String.join("\n", orphans)));
+    }
+  }
+
+  /**
+   * Gets the currently selected node.
+   *
+   * @return the node, null if nothing selected
+   */
+  private PreferenceNode getSelectedNode() {
+    TreeItem<PreferenceNode> selectedItem = preferencesTreeTable.getSelectionModel().getSelectedItem();
+    return selectedItem == null ? null : selectedItem.getValue();
+  }
+
+  /**
+   * Gets the entry the current selection belongs to.
+   *
+   * @return the entry, null if nothing selected
+   */
+  private PreferenceEntry getSelectedEntry() {
+    PreferenceNode node = getSelectedNode();
+    if (node instanceof PreferenceValue value) {
+      return value.getEntry();
+    }
+    return node instanceof PreferenceEntry entry ? entry : null;
+  }
+
+  /**
+   * Creates a sub-node below the selected node.
+   */
+  private void createNode() {
+    if (getSelectedNode() instanceof PreferenceEntry entry) {
+      NewNodeDialog.show(getView(), entry, this::showChangedNode);
+    }
+  }
+
+  /**
+   * Creates a key within the selected node.
+   */
+  private void createKey() {
+    if (getSelectedNode() instanceof PreferenceEntry entry) {
+      NewKeyDialog.show(getView(), entry, this::showChangedNode);
+    }
+  }
+
+  /**
+   * Marks the selected node and everything below it for deletion.
+   */
+  private void removeSelectedNode() {
+    PreferenceNode node = getSelectedNode();
+    if (node instanceof PreferenceEntry entry) {
+      Fx.yes(getView(), MessageFormat.format(resources.getString("RemoveNodeAction"), entry.getPath()), false,
+             () -> {
+               entry.remove();
+               showChangedNode(entry.getParent() == null ? entry : entry.getParent());
+             });
+    }
+    else if (node instanceof PreferenceValue value) {
+      value.remove();
+      showChangedNode(value.getState() == PreferenceState.REMOVED ? value : value.getEntry());
+    }
+  }
+
+  /**
+   * Rebuilds the tree items and selects the given node.
+   *
+   * @param node the node to select, null to leave the selection alone
+   */
+  private void showChangedNode(PreferenceNode node) {
+    preferenceTreeItems = null;
+    foundItem = null;
+    preferencesTreeTable.updateView();
+    if (node != null) {
+      for (TreeItem<PreferenceNode> item : preferencesTreeTable.getTreeItems()) {
+        if (item.getValue() == node) {
+          foundItem = item;
+          showFoundItem();
+          break;
+        }
+      }
+    }
+  }
+
+  /**
+   * Dumps the selected node and all of its sub-nodes to a file.
+   */
+  private void dump() {
+    PreferenceEntry entry = getSelectedEntry();
+    if (entry == null) {
+      Fx.info(getView(), resources.getString("please select the node to dump"));
+      return;
+    }
+    FileChooser fileChooser = createFileChooser(resources.getString("dump preferences"));
+    fileChooser.setInitialFileName(createDumpFileName(entry));
+    File file = fileChooser.showSaveDialog(getStage());
+    if (file != null) {
+      rememberDumpDirectory(file);
+      try (OutputStream os = Files.newOutputStream(file.toPath())) {
+        PreferencesDump.write(os, entry);
+      }
+      catch (IOException ex) {
+        Fx.error(getView(), MessageFormat.format(resources.getString("cannot write {0}"), file), ex);
+      }
+    }
+  }
+
+  /**
+   * Loads a dump file into the model.
+   */
+  private void load() {
+    FileChooser fileChooser = createFileChooser(resources.getString("load preferences"));
+    File file = fileChooser.showOpenDialog(getStage());
+    if (file != null) {
+      rememberDumpDirectory(file);
+      try (InputStream is = Files.newInputStream(file.toPath())) {
+        PreferencesDump.DumpedTree tree = PreferencesDump.read(is);
+        LoadDumpDialog.show(getView(), preferencesRepository, file.getName(), tree, () -> showChangedNode(null));
+      }
+      catch (IOException ex) {
+        Fx.error(getView(), MessageFormat.format(resources.getString("cannot read {0}"), file), ex);
+      }
+    }
+  }
+
+  /**
+   * Creates a file chooser starting in the directory last used.
+   *
+   * @param title the dialog title
+   * @return the file chooser
+   */
+  private FileChooser createFileChooser(String title) {
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setTitle(title);
+    fileChooser.getExtensionFilters().add(
+        new FileChooser.ExtensionFilter(resources.getString("preference dumps"), "*" + DUMP_EXTENSION));
+    String directory = PreferenzrPreferences.getInstance().getDumpDirectory();
+    if (directory != null) {
+      File dir = new File(directory);
+      if (dir.isDirectory()) {
+        fileChooser.setInitialDirectory(dir);
+      }
+    }
+    return fileChooser;
+  }
+
+  /**
+   * Remembers the directory of the given file for the next dump or load.
+   *
+   * @param file the chosen file
+   */
+  private void rememberDumpDirectory(File file) {
+    File directory = file.getParentFile();
+    if (directory != null) {
+      PreferenzrPreferences.getInstance().setDumpDirectory(directory.getAbsolutePath());
+    }
+  }
+
+  /**
+   * Creates a proposal for the name of a dump file.
+   *
+   * @param entry the dumped entry
+   * @return the filename
+   */
+  private String createDumpFileName(PreferenceEntry entry) {
+    String scope = entry.getUser() == null ? "system" : entry.getUser();
+    String path = entry.getPath().replace('/', '_');
+    return scope + path + DUMP_EXTENSION;
   }
 
   /**
@@ -284,35 +488,93 @@ public class MainController extends AbstractFxController implements DomainContex
     boolean filtered = false;
     if (!Objects.equals(filter, lastFilter)) {
       lastFilter = filter;
+      Predicate<PreferenceNode> predicate = null;
       if (!StringHelper.isAllWhitespace(filter)) {
         boolean ucLcSensitive = ucLcButton.isSelected();
-        String lcFilter = ucLcSensitive ? filter : filter.toUpperCase();
+        String pattern = ucLcSensitive ? filter : filter.toUpperCase();
         boolean not = false;
-        if (lcFilter.startsWith("!") || lcFilter.startsWith("-")) {
+        if (pattern.startsWith("!") || pattern.startsWith("-")) {
           not = true;
-          lcFilter = lcFilter.substring(1);
+          pattern = pattern.substring(1);
         }
-        List<PreferenceNode> foundNodes = new ArrayList<>();
-        for (PreferenceNode preferenceNode : preferencesRepository.getPreferences()) {
-          String name = ucLcSensitive ? preferenceNode.getName() : preferenceNode.getName().toUpperCase();
-          if (name.contains(lcFilter) ^ not) {
-            foundNodes.add(preferenceNode);
-          }
-        }
-        preferences = foundNodes;
+        String text = pattern;
+        boolean negated = not;
+        predicate = node -> matchesSubtree(node, text, ucLcSensitive, negated);
         filtered = true;
       }
-      else {
-        preferences = preferencesRepository.getPreferences();
-      }
+      setPredicate(predicate);
       preferenceTreeItems = null;
+      foundItem = null;
       preferencesTreeTable.updateView();
+      if (filtered) {
+        preferencesTreeTable.expandAll();
+      }
     }
     return filtered;
   }
 
   /**
-   * Finds the next/previous key or translation.
+   * Applies a filter to the tree items.<br>
+   * Takes effect on the next {@code updateView()}.
+   *
+   * @param predicate the predicate, null to show all nodes
+   */
+  private void setPredicate(Predicate<PreferenceNode> predicate) {
+    if (preferencesTreeTable.getConfiguration() instanceof PreferenceNodeTableConfiguration<PreferenceNode> config) {
+      config.setPredicate(predicate);
+    }
+  }
+
+  /**
+   * Returns whether a node or any of its sub-nodes matches the filter.
+   *
+   * @param node the node
+   * @param text the search text, already uppercase if not case-sensitive
+   * @param ucLcSensitive true if case-sensitive
+   * @param negated true if the match is inverted
+   * @return true if the node must be shown
+   */
+  private boolean matchesSubtree(PreferenceNode node, String text, boolean ucLcSensitive, boolean negated) {
+    if (matches(node, text, ucLcSensitive) != negated) {
+      return true;
+    }
+    List<? extends PreferenceNode> nodes = node.getNodes();
+    if (nodes != null) {
+      for (PreferenceNode child : nodes) {
+        if (matchesSubtree(child, text, ucLcSensitive, negated)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Returns whether the name or the value of a node contains the search text.
+   *
+   * @param node the node
+   * @param text the search text, already uppercase if not case-sensitive
+   * @param ucLcSensitive true if case-sensitive
+   * @return true if the node matches
+   */
+  private boolean matches(PreferenceNode node, String text, boolean ucLcSensitive) {
+    return contains(node.getName(), text, ucLcSensitive) || contains(node.getValue(), text, ucLcSensitive);
+  }
+
+  /**
+   * Returns whether a string contains the search text.
+   *
+   * @param str the string, may be null
+   * @param text the search text, already uppercase if not case-sensitive
+   * @param ucLcSensitive true if case-sensitive
+   * @return true if contained
+   */
+  private boolean contains(String str, String text, boolean ucLcSensitive) {
+    return str != null && (ucLcSensitive ? str : str.toUpperCase()).contains(text);
+  }
+
+  /**
+   * Finds the next/previous node or value.
    *
    * @param next true if start search at next item, false if search backwards starting at previous item, null if find next starting at current item
    * @return true if found
@@ -321,7 +583,6 @@ public class MainController extends AbstractFxController implements DomainContex
     if (!Objects.equals(find, lastFind)) {
       foundItem = null;
       foundIndex = -1;
-      foundLocale = null;
     }
     boolean found = false;
     lastFind = find;
@@ -329,7 +590,6 @@ public class MainController extends AbstractFxController implements DomainContex
       if (preferenceTreeItems == null) {
         preferenceTreeItems = preferencesTreeTable.getTreeItems();
         foundItem = null;
-        foundLocale = null;
       }
       if (preferenceTreeItems.size() > 1) {
         if (foundItem == null) {
@@ -344,33 +604,23 @@ public class MainController extends AbstractFxController implements DomainContex
         else {
           foundIndex = preferenceTreeItems.indexOf(foundItem);
         }
-        found = runFind(foundItem, foundIndex, foundLocale, next);
+        found = runFind(foundItem, foundIndex, next);
       }
     }
     return found;
   }
 
   /**
-   * Finds the next/previous key or translation.
+   * Finds the next/previous node or value.
    *
    * @param item the current item to start
    * @param itemNdx the index of the item in preferenceTreeItems
-   * @param locale != null if check translations first
    * @param next true if start search at next item, false if search backwards starting at previous item, null if find next starting at current item
    * @return true if found
    */
-  private boolean runFind(TreeItem<PreferenceNode> item, int itemNdx, String locale, Boolean next) {
-    String ucFind = ucLcButton.isSelected() ? find : find.toUpperCase();
-    if (item.isLeaf()) {
-//      if (checkTranslations(item, ucFind, locale == null ? -1 : locales.indexOf(locale), next)) {
-//        foundIndex = itemNdx;
-//        showFoundItem();
-//        return true;
-//      }
-    }
-
-    // nothing more found in translations
-    foundLocale = null;
+  private boolean runFind(TreeItem<PreferenceNode> item, int itemNdx, Boolean next) {
+    boolean ucLcSensitive = ucLcButton.isSelected();
+    String ucFind = ucLcSensitive ? find : find.toUpperCase();
 
     Holder<TreeItem<PreferenceNode>> itemHolder = new Holder<>();
     itemHolder.accept(item);
@@ -387,22 +637,12 @@ public class MainController extends AbstractFxController implements DomainContex
     itemNdx = startNdx;
     do {
       item = itemHolder.get();
-      String name = item.getValue().getName();
-      if (!ucLcButton.isSelected()) {
-        name = name.toUpperCase();
-      }
-      if (name.contains(ucFind)) {
+      if (matches(item.getValue(), ucFind, ucLcSensitive)) {
         foundIndex = itemNdx;
         foundItem = item;
-        foundLocale = null;
         showFoundItem();
         return true;
       }
-//      if (item.isLeaf() && checkTranslations(item, ucFind,-1, next)) {
-//        foundIndex = itemNdx;
-//        showFoundItem();
-//        return true;
-//      }
       if (Boolean.FALSE.equals(next)) {
         itemNdx = toPreviousItem(itemNdx, itemHolder);
       }
@@ -468,14 +708,7 @@ public class MainController extends AbstractFxController implements DomainContex
     if (row >= 0) {
       preferencesTreeTable.scrollToCentered(row);
       preferencesTreeTable.getSelectionModel().select(foundItem);
-//      if (foundLocale == null) {
-//        preferencesTreeTable.requestFocus();
-//        preferenceEditor.setBundleNode(foundItem.getValue());
-//      }
-//      else {
-//        preferenceEditor.setBundleNode(foundItem.getValue());
-//        preferenceEditor.selectLocale(foundLocale);
-//      }
+      preferenceEditor.setNode(foundItem.getValue());
     }
   }
 
@@ -487,75 +720,57 @@ public class MainController extends AbstractFxController implements DomainContex
     loadRepository();
   }
 
-//  /**
-//   * Renames the selected preference.
-//   */
-//  private void renameBundle() {
-//    BundleName preferenceName = getSelectedBundleName();
-//    if (preferenceName != null) {
-//      RenameBundleDialog.show(preferenceName, this::loadRepository);
-//    }
-//  }
-//
-//  /**
-//   * Renames the package of the selected preference.
-//   */
-//  private void renamePackage() {
-//    BundleName preferenceName = getSelectedBundleName();
-//    if (preferenceName != null) {
-//      RenamePackageDialog.show(ReflectionHelper.getPackageName(preferenceName.getName()), preferenceRepository, this::loadRepository);
-//    }
-//  }
-//
-//  /**
-//   * Gets the currently selected preference.
-//   *
-//   * @return the preference, null if nothing selected
-//   */
-//  private BundleName getSelectedBundleName() {
-//    BundleName preferenceName = null;
-//    TreeItem<BundleNode> selectedItem = preferencesTreeTable.getSelectionModel().getSelectedItem();
-//    if (selectedItem != null) {
-//      BundleNode node = selectedItem.getValue();
-//      if (node instanceof BundleKey) {
-//        preferenceName = ((BundleKey) node).getBundleName();
-//      }
-//      else if (node instanceof BundleName){
-//        preferenceName = ((BundleName) node);
-//      }
-//    }
-//    return preferenceName;
-//  }
-
   /**
    * Loads the model from the preference repository and updates the view.
    */
   private void loadRepository() {
     preferencesRepository.invalidate();
+    setPredicate(null);
     preferences = preferencesRepository.getPreferences();
     preferencesTreeTable.updateView();
     preferencesUpdated(0, true);
     filter = null;
+    lastFilter = null;
+    foundItem = null;
     preferenceTreeItems = null;
     filterField.updateView();
+    preferenceEditor.setNode(null);
   }
 
   /**
-   * Updates the number of modified translations.
+   * Updates the number of pending modifications.
    *
    * @param modificationCount the new overall modification count
+   * @param reloaded true if the repository has been reloaded
    */
   private void preferencesUpdated(int modificationCount, boolean reloaded) {
     saveButton.setDisable(modificationCount == 0);
     discardItem.setDisable(modificationCount == 0);
-//    preferenceEditor.setLocales(preferenceRepository.getLocales(), preferenceRepository.getActiveLocales());
-//    modificationLabel.setText(CommonBundle.createComment(modificationCount, preferencesRepository.getMissingCount(), 0));
+    modificationLabel.setText(CommonBundle.createComment(modificationCount));
     if (reloaded) {
       preferences = preferencesRepository.getPreferences();
       preferencesTreeTable.updateView();
     }
     else {
       preferencesTreeTable.refresh();
+    }
+  }
+
+  /**
+   * Adds or removes a style class.
+   *
+   * @param styleClasses the style classes of the row
+   * @param styleClass the style class to apply
+   * @param apply true to add, false to remove
+   */
+  private void applyStyle(List<String> styleClasses, String styleClass, boolean apply) {
+    if (apply) {
+      if (!styleClasses.contains(styleClass)) {
+        styleClasses.add(styleClass);
+      }
+    }
+    else {
+      styleClasses.remove(styleClass);
     }
   }
 

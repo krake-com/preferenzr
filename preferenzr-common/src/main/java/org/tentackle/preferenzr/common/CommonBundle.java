@@ -38,30 +38,41 @@ public class CommonBundle {
 
 
   /**
-   * Creates the comment string for a preference node.
+   * Creates the comment string describing the pending modifications.
    *
-   * @param modified number of modified translations
-   * @param missing number of missing translations
-   * @param translated number of translated translations (ignored if missing == 0)
-   * @return the comment
+   * @param modifications the number of pending modifications
+   * @return the comment, null if there are none
    */
-  public static String createComment(int modified, int missing, int translated) {
-    if (missing != 0 && modified == 0) {
-      if (translated == 0) {
-        return MessageFormat.format(getString("missing:{0}"), missing);
-      }
-      return MessageFormat.format(getString("missing:{0}, translated:{1}"), missing, translated);
+  public static String createComment(int modifications) {
+    if (modifications == 1) {
+      return getString("1 modification");
     }
-    else if (missing == 0 && modified != 0) {
-      return MessageFormat.format(getString("modified:{0}"), modified);
-    }
-    else if (missing != 0 && modified != 0) {
-      if (translated == 0) {
-        return MessageFormat.format(getString("modified:{0}, missing:{1}"), modified, missing);
-      }
-      return MessageFormat.format(getString("modified:{0}, missing:{1}, translated:{2}"), modified, missing, translated);
+    if (modifications > 1) {
+      return MessageFormat.format(getString("{0} modifications"), modifications);
     }
     return null;
+  }
+
+  /**
+   * Creates the comment string for an orphan node.
+   *
+   * @param path the node's path
+   * @param parentId the ID of the missing parent node
+   * @return the comment
+   */
+  public static String createOrphanNodeComment(String path, long parentId) {
+    return MessageFormat.format(getString("orphan node {0}: parent {1} is missing"), path, parentId);
+  }
+
+  /**
+   * Creates the comment string for an orphan key.
+   *
+   * @param key the key's name
+   * @param nodeId the ID of the missing node
+   * @return the comment
+   */
+  public static String createOrphanKeyComment(String key, long nodeId) {
+    return MessageFormat.format(getString("orphan key {0}: node {1} is missing"), key, nodeId);
   }
 
   private CommonBundle() {

@@ -15,6 +15,7 @@ module org.tentackle.preferenzr.common {
   requires org.tentackle.domain;
 
   requires java.prefs;
+  requires java.xml;
 
   provides org.tentackle.common.ModuleHook with Hook;
 }

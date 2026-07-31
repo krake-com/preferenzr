@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefWidth="400.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.tentackle.preferenzr.gui.editor.PreferenceEditor">
+   <children>
+      <Label text="%scope">
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+      </Label>
+      <TextArea fx:id="scopeField" editable="false" prefRowCount="1" />
+      <Label text="%node">
+         <VBox.margin>
+            <Insets top="10.0" />
+         </VBox.margin></Label>
+      <TextArea fx:id="pathField" editable="false" prefRowCount="1" />
+      <Label text="%key">
+         <VBox.margin>
+            <Insets top="10.0" />
+         </VBox.margin></Label>
+      <TextArea fx:id="keyField" editable="false" prefRowCount="1" />
+      <TextArea fx:id="preferenceValue" VBox.vgrow="ALWAYS">
+         <VBox.margin>
+            <Insets top="10.0" />
+         </VBox.margin>
+      </TextArea>
+   </children>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+</VBox>

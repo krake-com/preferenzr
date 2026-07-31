@@ -6,6 +6,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.TreeTableColumn?>
@@ -19,6 +20,9 @@
         <menus>
           <Menu text="%System">
             <items>
+              <MenuItem fx:id="dumpItem" mnemonicParsing="false" text="%dump" />
+              <MenuItem fx:id="loadItem" mnemonicParsing="false" text="%load" />
+              <SeparatorMenuItem mnemonicParsing="false" />
               <MenuItem fx:id="preferencesItem" mnemonicParsing="false" text="%Preferences" />
                   <MenuItem fx:id="discardItem" mnemonicParsing="false" text="%discard" />
               <MenuItem fx:id="exitItem" text="%Exit" />
@@ -36,10 +40,11 @@
    <center>
       <BorderPane fx:id="innerBorderPane" BorderPane.alignment="CENTER">
          <center>
+            <!-- the columns are created by the table configuration, see PreferenceNodeTableConfigurationProvider -->
             <TreeTableView fx:id="preferencesTreeTable">
               <columns>
-                <TreeTableColumn prefWidth="75.0" text="C1" />
-                <TreeTableColumn prefWidth="75.0" text="C2" />
+                <TreeTableColumn prefWidth="240.0" />
+                <TreeTableColumn prefWidth="240.0" />
               </columns>
             </TreeTableView>
          </center>
@@ -61,7 +66,7 @@
                </HBox.margin>
             </TextField>
             <ToggleButton fx:id="ucLcButton" mnemonicParsing="false" text="%Cc" />
-            <Label fx:id="modificationLabel" alignment="BASELINE_RIGHT" maxWidth="1.7976931348623157E308" text="xxx mods" HBox.hgrow="ALWAYS">
+            <Label fx:id="modificationLabel" alignment="BASELINE_RIGHT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets left="15.0" />
                </HBox.margin></Label>

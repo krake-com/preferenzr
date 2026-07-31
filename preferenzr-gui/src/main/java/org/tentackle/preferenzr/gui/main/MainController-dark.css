@@ -1,0 +1,24 @@
+
+.preference-modified {
+    -fx-background-color: #26264d;
+}
+
+.preference-modified:selected {
+    -fx-background-color: #3d3d99;
+}
+
+.preference-new {
+    -fx-background-color: #1d3a1d;
+}
+
+.preference-new:selected {
+    -fx-background-color: #2f6b2f;
+}
+
+.preference-removed {
+    -fx-background-color: #4d2626;
+}
+
+.preference-removed:selected {
+    -fx-background-color: #993d3d;
+}
