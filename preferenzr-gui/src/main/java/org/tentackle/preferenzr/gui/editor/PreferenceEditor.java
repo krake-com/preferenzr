@@ -23,7 +23,6 @@ import javafx.fxml.FXML;
 import org.tentackle.bind.Bindable;
 import org.tentackle.fx.AbstractFxController;
 import org.tentackle.fx.FxControllerService;
-import org.tentackle.fx.component.FxLabel;
 import org.tentackle.fx.component.FxTextArea;
 import org.tentackle.preferenzr.common.CommonBundle;
 import org.tentackle.preferenzr.common.PreferenceNode;
@@ -46,13 +45,13 @@ public class PreferenceEditor extends AbstractFxController {
   private PreferenceValue preference;         // the edited key, null if none
 
   @FXML
-  private FxLabel scopeLabel;                 // system or username
+  private FxTextArea scopeField;                 // system or username
 
   @FXML
-  private FxLabel pathLabel;                  // absolute path of the node
+  private FxTextArea pathField;                  // absolute path of the node
 
   @FXML
-  private FxLabel keyLabel;                   // name of the key
+  private FxTextArea keyField;                   // name of the key
 
   @FXML
   private FxTextArea preferenceValue;         // bound to preference.value
@@ -65,6 +64,12 @@ public class PreferenceEditor extends AbstractFxController {
         updatePreferredSize();
       }
     });
+    scopeField.setExpandable(true);
+    scopeField.setBindable(false);
+    pathField.setExpandable(true);
+    pathField.setBindable(false);
+    keyField.setExpandable(true);
+    keyField.setBindable(false);
   }
 
   @Override
@@ -80,10 +85,10 @@ public class PreferenceEditor extends AbstractFxController {
    */
   public void setNode(PreferenceNode node) {
     preference = node instanceof PreferenceValue value ? value : null;
-    scopeLabel.setText(node == null ? null
+    scopeField.setText(node == null ? null
                        : node.getUser() == null ? CommonBundle.getString("System") : node.getUser());
-    pathLabel.setText(node == null ? null : node.getPath());
-    keyLabel.setText(preference == null ? null : preference.getName());
+    pathField.setText(node == null ? null : node.getPath());
+    keyField.setText(preference == null ? null : preference.getName());
     // set the initial value first to allow Ctrl-Z via saveView below
     preferenceValue.setText(preference == null ? null : preference.getInitialValue());
     getContainer().saveView();
