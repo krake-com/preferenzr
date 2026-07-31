@@ -50,7 +50,7 @@
     <javac.version>25</javac.version>
     <javafx.version>26.0.1</javafx.version>
     <ow2.asm.version>9.10</ow2.asm.version>
-    <tentackle.version>25.0-SNAPSHOT</tentackle.version>
+    <tentackle.version>25.18.2.1</tentackle.version>
     <h2.version>2.4.240</h2.version>
     <tentackle.serviceDir>${project.build.directory}/generated-resources/services</tentackle.serviceDir>
     <tentackle.testServiceDir>${project.build.directory}/generated-test-resources/services</tentackle.testServiceDir>

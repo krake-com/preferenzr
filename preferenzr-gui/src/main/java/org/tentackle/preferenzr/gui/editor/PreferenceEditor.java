@@ -64,11 +64,8 @@ public class PreferenceEditor extends AbstractFxController {
         updatePreferredSize();
       }
     });
-    scopeField.setExpandable(true);
     scopeField.setBindable(false);
-    pathField.setExpandable(true);
     pathField.setBindable(false);
-    keyField.setExpandable(true);
     keyField.setBindable(false);
   }
 
