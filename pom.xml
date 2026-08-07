@@ -42,6 +42,9 @@
   <properties>
     <rootBasedir>${project.basedir}</rootBasedir>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+    <maven.version>3.9.0</maven.version>
+
+    <javac.lint>all,-processing,-exports,-missing-explicit-ctor,-this-escape</javac.lint>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
@@ -211,14 +214,15 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.1</version>
+          <version>3.15.0</version>
           <configuration>
             <encoding>UTF-8</encoding>
             <release>${javac.version}</release>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
             <compilerArgs>
-              <arg>-Xlint:unchecked,deprecation,removal,requires-transitive-automatic,requires-automatic</arg>
+              <arg>-Xlint:${javac.lint}</arg>
+              <arg>-proc:full</arg>
             </compilerArgs>
             <!-- necessary since Java 9, see https://issues.apache.org/jira/browse/MCOMPILER-310 -->
             <annotationProcessorPaths>
@@ -245,7 +249,7 @@
               <dependency>    <!-- necessary for fx-rdc processors because deps are not recognized here -->
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-controls</artifactId>
-                <version>${javafx.version}</version>
+                <version>26.0.1</version>
               </dependency>
             </annotationProcessorPaths>
           </configuration>
@@ -254,7 +258,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.5.0</version>
           <configuration>
             <encoding>UTF-8</encoding>
             <propertiesEncoding>UTF-8</propertiesEncoding>
@@ -265,7 +269,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.5</version>
+          <version>3.5.6</version>
           <configuration>
             <argLine>-Duser.language=en -Duser.region=US</argLine>
           </configuration>
@@ -281,19 +285,19 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.1.2</version>
+          <version>3.5.0</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.1.1</version>
+          <version>3.11.0</version>
         </plugin>
 
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>1.6.0</version>
+          <version>3.6.3</version>
           <configuration>
             <classpathScope>test</classpathScope>
           </configuration>
@@ -302,27 +306,15 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.4.0</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.1.0</version>
-          <dependencies>
-            <dependency>
-              <groupId>org.ow2.asm</groupId>
-              <artifactId>asm</artifactId>
-              <version>9.1</version>
-            </dependency>
-          </dependencies>
+          <version>3.12.0</version>
         </plugin>
 
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>keytool-maven-plugin</artifactId>
-          <version>1.5</version>
-        </plugin>
       </plugins>
     </pluginManagement>
 
