@@ -32,6 +32,7 @@ public class CommonBundle {
    * @param key the key
    * @return the string from the preference
    */
+  @SuppressWarnings("bundle")
   public static String getString(String key) {
     return getBundle().getString(key);
   }
