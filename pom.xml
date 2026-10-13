@@ -62,14 +62,14 @@
   </properties>
 
   <scm>
-    <connection>scm:git:https://bitbucket.org/krake-oss/preferenzr.git</connection>
-    <developerConnection>scm:git:ssh://git@bitbucket.org/krake-oss/preferenzr.git</developerConnection>
-    <url>https://bitbucket.org/krake-oss/preferenzr/</url>
+    <connection>scm:git:https://github.com/krake-com/preferenzr.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/krake-com/preferenzr.git</developerConnection>
+    <url>https://github.com/krake-com/preferenzr/</url>
   </scm>
 
   <issueManagement>
-    <system>Bitbucket</system>
-    <url>https://bitbucket.org/krake-oss/preferenzr/</url>
+    <system>GitHub</system>
+    <url>https://github.com/krake-com/preferenzr/issues</url>
   </issueManagement>
 
   <distributionManagement>
