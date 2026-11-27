@@ -23,6 +23,20 @@ Dumps use the standard XML format of `java.util.prefs`, so they can also be read
 `Preferences.importPreferences()` and files written by `Preferences.exportSubtree()` can be loaded
 into Preferenzr.
 
+## Installation
+Preferenzr is usually installed by downloading and unpacking the platform specific jlink ZIP-archive
+of the latest release:
+
+- [Linux x64](https://github.com/krake-com/preferenzr/releases/latest/download/preferenzr-linux-x64.zip)
+- [Linux ARM64](https://github.com/krake-com/preferenzr/releases/latest/download/preferenzr-linux-aarch64.zip)
+- [Windows x64](https://github.com/krake-com/preferenzr/releases/latest/download/preferenzr-windows-x64.zip)
+- [macOS ARM64](https://github.com/krake-com/preferenzr/releases/latest/download/preferenzr-macos-aarch64.zip)
+
+Older versions are available on the [releases page](https://github.com/krake-com/preferenzr/releases).
+
+It is invoked via a start script found in the **bin** folder (**preferenzr.sh** or **preferenzr.cmd**,
+depending on the platform). The database is configured in **conf/backend.properties**.
+
 ## Running
 
 Preferenzr is a non-typical Tentackle application: a single connection, usually directly via JDBC,

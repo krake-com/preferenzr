@@ -9,7 +9,7 @@ of *another* Tentackle application. Those preferences live in the target applica
 (`org.tentackle.dbms.prefs`, tables `prefnode` / `prefkey`), not in `java.util.prefs`.
 See `README.md` for the user-facing feature list.
 
-Java 25, Maven multi-module, JPMS (every module has a `module-info.java`), TestNG.
+Java 27, Maven multi-module, JPMS (every module has a `module-info.java`), TestNG.
 
 ## Build and run
 
@@ -25,6 +25,12 @@ mvn -pl preferenzr-common test -Dtest=PreferencesDumpTest#testReadJdkExport   # 
 
 Deploying (`distributionManagement`) needs the `krake` profile from `~/.m2/settings.xml`
 (`mvn -Pkrake ...`), which supplies `repo.id`, `site.id` etc. Plain `install` does not.
+The Maven site (`mvn site`, Fluido skin) is configured in `src/site/`. All plugin and dependency
+versions are properties in the root `pom.xml`; the enforcer requires them to be specified.
+
+`.github/workflows/jlink.yml` builds the jlink image for linux-x64/-aarch64, windows-x64 and
+macos-aarch64; pushing a version tag (e.g. `1.0.0`) attaches the ZIPs, with version-free names such as
+`preferenzr-linux-x64.zip`, to a GitHub Release, so `README.md` can link to `releases/latest/download/...`.
 
 ### Running the GUI during development
 

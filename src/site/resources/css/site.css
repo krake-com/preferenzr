@@ -1,0 +1,94 @@
+/*
+ * Brand styling for the Preferenzr Maven site.
+ *
+ * Loaded by the Fluido (Bootstrap) skin after its own stylesheet, so these
+ * rules override the defaults.
+ *
+ * Palette:
+ *   dark blue    #00305e   links / table headers
+ *   darker blue  #00203f   hover / active backgrounds
+ *   accent red   #bc3d2f   headings, borders, hover, accents
+ *
+ * No remote resources (fonts, url()) are referenced, so the rendered site
+ * loads nothing over the network.
+ */
+
+body {
+  font-family: Arial, "Lucida Sans", Helvetica, sans-serif;
+}
+
+/* ---- Banner / logo breathing room ---- */
+#banner img {
+  margin: 10px 0;
+}
+
+/* ---- Body links in dark blue, hover to red ---- */
+a,
+a:visited {
+  color: #00305e;
+}
+
+a:hover,
+a:focus {
+  color: #bc3d2f;
+}
+
+/* ---- Headings in red, framed by thin red rules ---- */
+#bodyColumn h1,
+#bodyColumn h2,
+#bodyColumn h3,
+#bodyColumn h4,
+#bodyColumn h5,
+#bodyColumn h6 {
+  color: #bc3d2f;
+  border-top: 1px solid #bc3d2f;
+  border-bottom: 1px solid #bc3d2f;
+  padding: 0.2em 0;
+}
+
+/* ---- Breadcrumbs ---- */
+#breadcrumbs {
+  background: #00305e;
+  border: none;
+  color: #ffffff;
+}
+
+#breadcrumbs a,
+#breadcrumbs .divider,
+#breadcrumbs li {
+  color: #ffffff;
+  text-shadow: none;
+}
+
+#breadcrumbs a:hover {
+  color: #bc3d2f;
+}
+
+/* ---- Left navigation ---- */
+#leftColumn .nav-list .nav-header {
+  color: #101010;
+  border-bottom: 1px solid #bc3d2f;
+  text-shadow: none;
+}
+
+#leftColumn .nav-list > li > a {
+  color: #101010;
+  text-shadow: none;
+}
+
+#leftColumn .nav-list > li > a:hover {
+  color: #bc3d2f;
+}
+
+#leftColumn .nav-list > .active > a,
+#leftColumn .nav-list > .active > a:hover,
+#leftColumn .nav-list > .active > a:focus {
+  background-color: #00305e;
+  color: #ffffff;
+}
+
+/* ---- Table header tint ---- */
+table.bodyTable th {
+  background-color: #00305e;
+  color: #ffffff;
+}

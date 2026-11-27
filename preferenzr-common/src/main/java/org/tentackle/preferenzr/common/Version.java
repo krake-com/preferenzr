@@ -4,12 +4,15 @@
 
 package org.tentackle.preferenzr.common;
 
+import org.tentackle.common.NoBundle;
+
 import java.util.ResourceBundle;
 
 
 /**
  * Holds versioning information.
  */
+@NoBundle
 public class Version {
 
   // to avoid i18n test errors (not annotated with @Bundle)

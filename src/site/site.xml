@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site xmlns="http://maven.apache.org/SITE/2.0.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/SITE/2.0.0 https://maven.apache.org/xsd/site-2.0.0.xsd"
+      name="${project.name}">
+
+  <skin>
+    <groupId>org.apache.maven.skins</groupId>
+    <artifactId>maven-fluido-skin</artifactId>
+    <version>${maven.fluido.skin.version}</version>
+  </skin>
+
+  <bannerLeft name="Preferenzr" href="https://tentackle.org/preferenzr/">
+    <image src="images/preferenzr.png" alt="Preferenzr"/>
+  </bannerLeft>
+
+  <bannerRight href="https://krake.de/">
+    <image src="images/krake.png" alt="Krake Softwaretechnik"/>
+  </bannerRight>
+
+  <body>
+    <breadcrumbs>
+      <item name="Tentackle" href="https://tentackle.org/"/>
+    </breadcrumbs>
+
+    <menu ref="parent"/>
+    <menu ref="modules"/>
+    <menu ref="reports"/>
+    <menu name="Links">
+      <item name="GitHub" href="https://github.com/krake-com/preferenzr"/>
+      <item name="Tentackle" href="https://tentackle.org/"/>
+      <item name="Krake Softwaretechnik" href="https://krake.de/"/>
+    </menu>
+
+    <footer><![CDATA[<a href="${project.url}">Preferenzr</a> - Tentackle Preferences Editor]]></footer>
+  </body>
+
+  <custom>
+    <fluidoSkin>
+      <sourceLineNumbersEnabled>true</sourceLineNumbersEnabled>
+      <breadcrumbDivider>&#187;</breadcrumbDivider>
+      <skipGenerationDate>false</skipGenerationDate>
+    </fluidoSkin>
+  </custom>
+
+</site>
