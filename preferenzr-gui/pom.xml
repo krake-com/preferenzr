@@ -81,7 +81,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <argLine>-Duser.language=en -Duser.region=US --add-opens org.tentackle.preferenzr.gui/org.tentackle.preferenzr.gui.dto=ALL-UNNAMED</argLine>
+          <argLine>-Duser.language=en -Duser.region=US -Dglass.platform=headless --add-opens org.tentackle.preferenzr.gui/org.tentackle.preferenzr.gui.dto=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
     </plugins>
